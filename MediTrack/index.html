@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack - Welcome</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="landing-page">
+
+    <header class="app-header sticky">
+        <div class="logo">
+            <i class="fa-solid fa-notes-medical"></i>
+            <h1>MediTrack</h1>
+        </div>
+        <nav class="top-nav">
+            <a href="#features">Features</a>
+            <a href="#portals" class="btn btn-primary">Login Portals</a>
+        </nav>
+    </header>
+
+    <main class="landing-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <canvas id="network-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: 0.6;"></canvas>
+            <div class="hero-content">
+                <h2 class="hero-title">Digital Craftsmanship in Healthcare</h2>
+                <p class="hero-subtitle">Experience a seamless, 2025-ready interface designed to elevate patient care and streamline medical administration.</p>
+                <a href="#portals" class="btn btn-accent btn-lg">Access Portals</a>
+            </div>
+            <div class="hero-visual">
+                <!-- Abstract shapes removed to show background image -->
+            </div>
+        </section>
+
+        <!-- Trust Banner -->
+        <div class="trust-banner animate-fade-in">
+            <div class="trust-stat">
+                <h3>50+</h3>
+                <p>Specialists</p>
+            </div>
+            <div class="trust-stat">
+                <h3>10k+</h3>
+                <p>Patients Served</p>
+            </div>
+            <div class="trust-stat">
+                <h3>24/7</h3>
+                <p>Availability</p>
+            </div>
+            <div class="trust-stat">
+                <h3>100%</h3>
+                <p>Secure Records</p>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="features-grid">
+                <div class="feature-card animate-fade-in">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <h3>Real-time Queues</h3>
+                    <p>Monitor patient wait times and optimize doctor availability with live tracking.</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <i class="fa-solid fa-file-prescription"></i>
+                    <h3>Digital Prescriptions</h3>
+                    <p>Send secure electronic prescriptions directly to the pharmacy instantly.</p>
+                </div>
+                <div class="feature-card animate-fade-in" style="animation-delay: 0.4s;">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <h3>Smart Inventory</h3>
+                    <p>Never run out of essential medical supplies with automated stock alerts.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portals Section -->
+        <section id="portals" class="portals-section">
+            <h2 class="section-title text-center">Select Your Portal</h2>
+            <div class="portal-grid">
+                
+                <!-- Admin Card -->
+                <div class="portal-card">
+                    <div class="portal-icon">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3>Administrator</h3>
+                    <p>Manage system rosters, monitor queue statuses, and track critical medical inventory levels.</p>
+                    <a href="admin.html" class="btn btn-outline">Enter Admin Portal <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Doctor Card -->
+                <div class="portal-card">
+                    <div class="portal-icon">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <h3>Medical Professional</h3>
+                    <p>Review daily appointments, issue digital prescriptions, and manage your availability status.</p>
+                    <a href="doctor.html" class="btn btn-outline">Enter Doctor Portal <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Patient Card -->
+                <div class="portal-card">
+                    <div class="portal-icon">
+                        <i class="fa-solid fa-hospital-user"></i>
+                    </div>
+                    <h3>Patient Access</h3>
+                    <p>Book appointments across specialties, check virtual waiting room status, and view records.</p>
+                    <a href="patient.html" class="btn btn-outline">Enter Patient Portal <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 MediTrack Healthcare. Crafted with precision.</p>
+    </footer>
+
+</body>
+</html>
