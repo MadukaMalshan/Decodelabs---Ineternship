@@ -283,9 +283,13 @@ button, input, select, textarea { font-family: inherit; }
     justify-content: center;
     gap: 3rem;
     padding: 2rem 5%;
-    background-color: var(--clr-surface);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
     flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
 }
 .trust-stat {
     text-align: center;
@@ -306,7 +310,7 @@ button, input, select, textarea { font-family: inherit; }
 
 .features-section {
     padding: 5rem 5%;
-    background-color: var(--clr-background);
+    /* Transparent to let the mesh background show */
 }
 .features-grid {
     display: grid;
@@ -316,9 +320,15 @@ button, input, select, textarea { font-family: inherit; }
     margin: 0 auto;
 }
 .feature-card {
-    background: transparent;
-    padding: 2rem;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    border-radius: var(--border-radius-lg);
+    padding: 2.5rem 2rem;
     text-align: center;
+    transition: var(--transition);
 }
 .feature-card i {
     font-size: 2.5rem;
@@ -339,7 +349,7 @@ button, input, select, textarea { font-family: inherit; }
 
 .portals-section {
     padding: 5rem 5%;
-    background-color: var(--clr-surface);
+    /* Let the mesh background show */
 }
 .section-title {
     font-size: var(--fs-h1);
@@ -353,13 +363,15 @@ button, input, select, textarea { font-family: inherit; }
     margin: 0 auto;
 }
 .portal-card {
-    background: var(--clr-surface);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
     padding: 2.5rem 2rem;
     border-radius: var(--border-radius-lg);
     text-align: center;
     transition: var(--transition);
-    border: 1px solid rgba(0,0,0,0.02);
-    box-shadow: var(--box-shadow);
 }
 .portal-card:hover {
     transform: translateY(-10px);
@@ -427,7 +439,11 @@ button, input, select, textarea { font-family: inherit; }
     position: fixed;
     top: 0; left: 0; bottom: 0;
     width: var(--sidebar-width);
-    background: var(--clr-sidebar-bg);
+    /* Frosted Glass Sidebar with Darker Tint */
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--clr-sidebar-text);
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     z-index: 100;
@@ -507,7 +523,7 @@ button, input, select, textarea { font-family: inherit; }
     flex: 1;
     padding: 2rem 5%;
     overflow-y: auto;
-    background: var(--clr-background);
+    background: transparent;
 }
 
 @media (min-width: 1024px) {
@@ -540,12 +556,14 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .card {
-    background: var(--clr-surface);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
     border-radius: var(--border-radius-lg);
     padding: 2rem;
-    box-shadow: var(--box-shadow);
     transition: var(--transition);
-    border: none;
 }
 .card:hover { box-shadow: var(--box-shadow-hover); }
 .card h3 {
