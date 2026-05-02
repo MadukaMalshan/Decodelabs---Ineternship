@@ -246,6 +246,31 @@ button, input, select, textarea { font-family: inherit; }
     line-height: 1.8;
 }
 
+.hero-visual {
+    position: relative;
+    z-index: 10;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+@media (min-width: 1024px) {
+    .hero-visual { display: flex; }
+}
+
+.hero-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 500px;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15));
+    animation: float-img 6s ease-in-out infinite;
+}
+
+@keyframes float-img {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
 
 
 @keyframes float {
