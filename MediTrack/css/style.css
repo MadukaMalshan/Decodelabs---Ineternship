@@ -495,27 +495,45 @@ button, input, select, textarea { font-family: inherit; }
 .user-name { font-weight: 700; display: block; margin-bottom: 0.2rem; color: var(--clr-sidebar-text); }
 .user-role { font-size: var(--fs-small); color: var(--clr-sidebar-muted); }
 
-.sidebar-nav { flex: 1; padding: 1.5rem 0; overflow-y: auto; }
+.sidebar-nav { flex: 1; padding: 1.5rem 1rem; overflow-y: auto; }
+.nav-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .nav-item {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1rem;
     color: var(--clr-sidebar-muted);
     font-weight: 600;
-    border-left: 4px solid transparent;
+    border-radius: var(--border-radius-md);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
-.nav-item i { width: 20px; font-size: 1.1rem; color: var(--clr-sidebar-muted); }
+.nav-item i { width: 20px; font-size: 1.1rem; color: var(--clr-sidebar-muted); transition: color 0.3s ease; }
+.nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 0%;
+    background: linear-gradient(90deg, rgba(13, 148, 136, 0.2), transparent);
+    z-index: 0;
+    transition: width 0.3s ease;
+}
 .nav-item:hover, .nav-item.active {
-    background: rgba(255,255,255,0.05);
-    border-left-color: var(--clr-btn-primary);
-    color: var(--clr-sidebar-text);
+    color: #fff;
+    transform: translateX(4px);
+}
+.nav-item:hover::before, .nav-item.active::before {
+    width: 100%;
+}
+.nav-item.active {
+    background: rgba(13, 148, 136, 0.1);
+    border-left: 4px solid var(--clr-btn-primary);
 }
 .nav-item:hover i, .nav-item.active i { color: var(--clr-btn-primary); }
 
-.sidebar-footer { padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.1); }
-.logout { color: var(--clr-sidebar-muted); }
-.logout:hover { color: #f87171; border-left-color: #f87171; background: rgba(248, 113, 113, 0.1); }
+.sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.05); }
+.logout { color: var(--clr-sidebar-muted); border-radius: var(--border-radius-md); }
+.logout:hover { color: #f87171; background: rgba(248, 113, 113, 0.1); transform: translateX(4px); }
 .logout:hover i { color: #f87171; }
 
 /* Main Content Area */

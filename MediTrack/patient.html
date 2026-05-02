@@ -42,10 +42,10 @@
 
             <nav class="sidebar-nav">
                 <ul class="nav-list">
-                    <li><a href="#" class="nav-item active"><i class="fa-solid fa-house-chimney-medical"></i> Home</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-calendar-days"></i> My Bookings</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-folder-open"></i> Medical Records</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+                    <li><a href="#" class="nav-item active" data-target="view-home"><i class="fa-solid fa-house-chimney-medical"></i> Home</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-bookings"><i class="fa-solid fa-calendar-days"></i> My Bookings</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-records"><i class="fa-solid fa-folder-open"></i> Medical Records</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
                 </ul>
             </nav>
 
@@ -56,52 +56,154 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="section-header">
-                <h2>Welcome back, Alex!</h2>
-                <p>Manage your appointments and medical records seamlessly.</p>
-            </header>
             
-            <div class="dashboard-grid patient-grid">
-                <!-- Virtual Waiting Room -->
-                <article class="card virtual-waiting-room">
-                    <h3><i class="fa-solid fa-hourglass-half"></i> Virtual Waiting Room</h3>
-                    <div id="waiting-room-status" class="status-content text-center py-2">
-                        <p class="loading-state">Syncing with queue...</p>
+            <!-- Home View -->
+            <div id="view-home" class="view-section active animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Welcome back, Alex!</h2>
+                        <p>Manage your appointments and medical records seamlessly.</p>
                     </div>
-                </article>
+                </header>
+                
+                <div class="dashboard-grid patient-grid">
+                    <!-- Virtual Waiting Room -->
+                    <article class="card virtual-waiting-room">
+                        <h3><i class="fa-solid fa-hourglass-half"></i> Virtual Waiting Room</h3>
+                        <div id="waiting-room-status" class="status-content text-center py-2">
+                            <p class="loading-state">Syncing with queue...</p>
+                        </div>
+                    </article>
 
-                <!-- Book Appointment -->
-                <article class="card book-appointment">
-                    <h3><i class="fa-solid fa-calendar-plus"></i> Book Appointment</h3>
-                    <form id="booking-form" class="dynamic-form">
-                        <div class="form-group">
-                            <label for="specialty-filter">Select Specialty</label>
-                            <select id="specialty-filter" required>
-                                <option value="">Loading specialties...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="doctor-select">Select Doctor</label>
-                            <select id="doctor-select" required disabled>
-                                <option value="">First select a specialty</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="appointment-date">Date</label>
-                            <input type="date" id="appointment-date" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-full">Book Now</button>
-                    </form>
-                </article>
+                    <!-- Book Appointment -->
+                    <article class="card book-appointment">
+                        <h3><i class="fa-solid fa-calendar-plus"></i> Book Appointment</h3>
+                        <form id="booking-form" class="dynamic-form" onsubmit="event.preventDefault(); alert('Appointment requested successfully!');">
+                            <div class="form-group">
+                                <label for="specialty-filter">Select Specialty</label>
+                                <select id="specialty-filter" required>
+                                    <option value="">Loading specialties...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="doctor-select">Select Doctor</label>
+                                <select id="doctor-select" required disabled>
+                                    <option value="">First select a specialty</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="appointment-date">Date</label>
+                                <input type="date" id="appointment-date" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">Book Now</button>
+                        </form>
+                    </article>
 
-                <!-- Specialties Grid -->
-                <article class="card specialties-list">
-                    <h3><i class="fa-solid fa-stethoscope"></i> Browse by Specialty</h3>
-                    <div id="specialties-grid" class="specialties-grid">
-                        <p class="loading-state">Loading specialties...</p>
+                    <!-- Specialties Grid -->
+                    <article class="card specialties-list" style="grid-column: span 2;">
+                        <h3><i class="fa-solid fa-stethoscope"></i> Browse by Specialty</h3>
+                        <div id="specialties-grid" class="specialties-grid">
+                            <p class="loading-state">Loading specialties...</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- My Bookings View -->
+            <div id="view-bookings" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>My Appointments</h2>
+                        <p>View and manage your upcoming and past bookings.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'view-home\']').click();"><i class="fa-solid fa-plus"></i> New Booking</button>
+                </header>
+                
+                <article class="card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor Name</th>
+                                    <th>Specialty</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patient-bookings-body">
+                                <tr><td colspan="5" class="loading-state text-center">Loading your bookings...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </article>
             </div>
+
+            <!-- Medical Records View -->
+            <div id="view-records" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>My Health Records</h2>
+                        <p>Securely access your past medical history and prescriptions.</p>
+                    </div>
+                </header>
+                
+                <article class="card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date of Visit</th>
+                                    <th>Diagnosis</th>
+                                    <th>Prescribed Treatment</th>
+                                    <th>Documents</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patient-records-body">
+                                <tr><td colspan="4" class="loading-state text-center">Loading health records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Profile Settings View -->
+            <div id="view-settings" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Account Settings</h2>
+                        <p>Manage your personal details and contact preferences.</p>
+                    </div>
+                </header>
+                
+                <article class="card" style="max-width: 600px;">
+                    <form class="dynamic-form" onsubmit="event.preventDefault(); alert('Profile details saved successfully!');">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" value="Alex Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="tel" value="+1 234 567 8900" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" value="alex.doe@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Notification Preferences</label>
+                            <select>
+                                <option>Email & SMS Reminders</option>
+                                <option>Email Only</option>
+                                <option>SMS Only</option>
+                                <option>No Notifications</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                    </form>
+                </article>
+            </div>
+
         </main>
     </div>
 

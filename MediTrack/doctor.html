@@ -42,10 +42,10 @@
 
             <nav class="sidebar-nav">
                 <ul class="nav-list">
-                    <li><a href="#" class="nav-item active"><i class="fa-solid fa-calendar-check"></i> Appointments</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-bed-pulse"></i> Inpatients</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-file-prescription"></i> Prescriptions</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-user-doctor"></i> My Profile</a></li>
+                    <li><a href="#" class="nav-item active" data-target="view-appointments"><i class="fa-solid fa-calendar-check"></i> Appointments</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-inpatients"><i class="fa-solid fa-bed-pulse"></i> Inpatients</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-prescriptions"><i class="fa-solid fa-file-prescription"></i> Prescriptions</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-profile"><i class="fa-solid fa-user-doctor"></i> My Profile</a></li>
                 </ul>
             </nav>
 
@@ -56,42 +56,148 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="section-header">
-                <h2>Doctor Dashboard</h2>
-                <div class="availability-toggle">
-                    <span id="availability-status">Available</span>
-                    <label class="switch">
-                        <input type="checkbox" id="availability-checkbox" checked>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </header>
             
-            <div class="dashboard-grid doctor-grid">
-                <!-- Appointments List -->
-                <article class="card today-appointments">
-                    <h3><i class="fa-solid fa-calendar-check"></i> Today's Appointments</h3>
-                    <ul id="appointments-list" class="appointment-list">
-                        <li class="loading-state text-center">Loading appointments...</li>
-                    </ul>
-                </article>
+            <!-- Appointments View -->
+            <div id="view-appointments" class="view-section active animate-fade-in">
+                <header class="section-header">
+                    <h2>Doctor Dashboard</h2>
+                    <div class="availability-toggle">
+                        <span id="availability-status">Available</span>
+                        <label class="switch">
+                            <input type="checkbox" id="availability-checkbox" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </header>
+                
+                <div class="dashboard-grid doctor-grid">
+                    <article class="card today-appointments" style="grid-column: span 2;">
+                        <h3><i class="fa-solid fa-calendar-check"></i> Today's Appointments</h3>
+                        <ul id="appointments-list" class="appointment-list">
+                            <li class="loading-state text-center">Loading appointments...</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
 
-                <!-- Digital Prescription Tool -->
-                <article class="card digital-prescription">
-                    <h3><i class="fa-solid fa-file-prescription"></i> Digital Prescription Tool</h3>
-                    <form id="prescription-form" class="dynamic-form">
+            <!-- Inpatients View -->
+            <div id="view-inpatients" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Inpatient Management</h2>
+                        <p>Track admitted patients under your care.</p>
+                    </div>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Admit Patient</button>
+                </header>
+                
+                <article class="card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Ward/Room</th>
+                                    <th>Admission Date</th>
+                                    <th>Diagnosis</th>
+                                    <th>Condition</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inpatients-table-body">
+                                <tr><td colspan="6" class="loading-state text-center">Loading inpatient records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Prescriptions View -->
+            <div id="view-prescriptions" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Digital Prescriptions</h2>
+                        <p>Issue new prescriptions and review history.</p>
+                    </div>
+                </header>
+                
+                <div class="dashboard-grid">
+                    <article class="card digital-prescription">
+                        <h3><i class="fa-solid fa-pen-to-square"></i> Issue New Prescription</h3>
+                        <form id="prescription-form" class="dynamic-form" onsubmit="event.preventDefault(); alert('Prescription Issued!');">
+                            <div class="form-group">
+                                <label for="patient-search">Patient Name</label>
+                                <input type="text" id="patient-search" placeholder="Search patient..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="medication">Medication & Dosage</label>
+                                <textarea id="medication" rows="4" placeholder="e.g. Amoxicillin 500mg, 1 tablet twice a day..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">Issue Prescription</button>
+                        </form>
+                    </article>
+
+                    <article class="card">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Prescriptions</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Medication</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-prescriptions-body">
+                                    <tr><td colspan="4" class="loading-state text-center">Loading history...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Profile Settings View -->
+            <div id="view-profile" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Doctor Profile & Settings</h2>
+                        <p>Manage your professional details and schedule.</p>
+                    </div>
+                </header>
+                
+                <article class="card" style="max-width: 600px;">
+                    <form class="dynamic-form" onsubmit="event.preventDefault(); alert('Profile updated successfully!');">
                         <div class="form-group">
-                            <label for="patient-search">Patient Name</label>
-                            <input type="text" id="patient-search" placeholder="Search patient..." required>
+                            <label>Full Name</label>
+                            <input type="text" value="Dr. Emily Chen" required>
                         </div>
                         <div class="form-group">
-                            <label for="medication">Medication & Dosage</label>
-                            <textarea id="medication" rows="4" placeholder="e.g. Amoxicillin 500mg, 1 tablet twice a day..." required></textarea>
+                            <label>Specialty</label>
+                            <select>
+                                <option>Pediatrics</option>
+                                <option>Cardiology</option>
+                                <option>Neurology</option>
+                                <option>General Practice</option>
+                            </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Issue Prescription</button>
+                        <div class="form-group">
+                            <label>Primary Shift</label>
+                            <select>
+                                <option>Morning (08:00 - 14:00)</option>
+                                <option>Evening (14:00 - 20:00)</option>
+                                <option>Night (20:00 - 08:00)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Contact</label>
+                            <input type="email" value="emily.chen@meditrack.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Update Profile</button>
                     </form>
                 </article>
             </div>
+
         </main>
     </div>
 

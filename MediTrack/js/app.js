@@ -214,10 +214,13 @@ function renderAdminDashboard() {
 
 // --- Doctor Dashboard Logic ---
 function renderDoctorDashboard() {
+    initSPA();
+
     const appointmentsList = document.getElementById('appointments-list');
     const availabilityCheckbox = document.getElementById('availability-checkbox');
     const availabilityStatus = document.getElementById('availability-status');
-    const form = document.getElementById('prescription-form');
+    const inpatientsBody = document.getElementById('inpatients-table-body');
+    const recentPrescriptionsBody = document.getElementById('recent-prescriptions-body');
     
     // Render Appointments
     if (appointmentsList) {
@@ -254,13 +257,43 @@ function renderDoctorDashboard() {
         });
     }
 
-    // Form
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Prescription successfully saved and sent to pharmacy.');
-            form.reset();
-        });
+    // Render Inpatients
+    if (inpatientsBody) {
+        const mockInpatients = [
+            { name: "John Doe", ward: "Ward A - Room 102", date: "2026-05-01", diagnosis: "Pneumonia", condition: "Stable" },
+            { name: "Jane Smith", ward: "ICU - Bed 4", date: "2026-05-02", diagnosis: "Post-surgery observation", condition: "Critical" },
+            { name: "Michael Johnson", ward: "Ward B - Room 205", date: "2026-04-28", diagnosis: "Fractured Femur", condition: "Improving" }
+        ];
+
+        inpatientsBody.innerHTML = mockInpatients.map(patient => `
+            <tr>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${patient.name}</div></td>
+                <td>${patient.ward}</td>
+                <td>${patient.date}</td>
+                <td>${patient.diagnosis}</td>
+                <td><span class="badge ${patient.condition === 'Critical' ? 'badge-danger' : 'badge-success'}">${patient.condition}</span></td>
+                <td>
+                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);">View Vitals</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Render Recent Prescriptions
+    if (recentPrescriptionsBody) {
+        const mockRecentPrescriptions = [
+            { patient: "Alice Johnson", date: "Today", meds: "Amoxicillin 500mg", status: "Dispensed" },
+            { patient: "Bob Williams", date: "Yesterday", meds: "Lisinopril 10mg", status: "Pending" }
+        ];
+
+        recentPrescriptionsBody.innerHTML = mockRecentPrescriptions.map(rx => `
+            <tr>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${rx.patient}</div></td>
+                <td>${rx.date}</td>
+                <td>${rx.meds}</td>
+                <td><span class="badge ${rx.status === 'Dispensed' ? 'badge-success' : 'badge-warning'}">${rx.status}</span></td>
+            </tr>
+        `).join('');
     }
     
     initModal();
@@ -268,11 +301,15 @@ function renderDoctorDashboard() {
 
 // --- Patient Dashboard Logic ---
 function renderPatientDashboard() {
+    initSPA();
+
     const waitingRoom = document.getElementById('waiting-room-status');
     const specialtyFilter = document.getElementById('specialty-filter');
     const specialtiesGrid = document.getElementById('specialties-grid');
     const doctorSelect = document.getElementById('doctor-select');
-    const form = document.getElementById('booking-form');
+    
+    const patientBookingsBody = document.getElementById('patient-bookings-body');
+    const patientRecordsBody = document.getElementById('patient-records-body');
 
     // Render Waiting Room
     if (waitingRoom) {
@@ -322,15 +359,44 @@ function renderPatientDashboard() {
         `).join('');
     }
 
-    // Form
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Appointment request submitted successfully!');
-            form.reset();
-            doctorSelect.disabled = true;
-            doctorSelect.innerHTML = '<option value="">First select a specialty</option>';
-        });
+    // Render Patient Bookings
+    if (patientBookingsBody) {
+        const mockPatientBookings = [
+            { doctor: "Dr. Emily Chen", specialty: "Pediatrics", datetime: "2026-05-10, 09:00 AM", status: "Scheduled" },
+            { doctor: "Dr. Sarah Connor", specialty: "Cardiology", datetime: "2026-04-20, 10:30 AM", status: "Completed" },
+            { doctor: "Dr. Michael Lee", specialty: "Orthopedics", datetime: "2026-03-15, 02:15 PM", status: "Cancelled" }
+        ];
+
+        patientBookingsBody.innerHTML = mockPatientBookings.map(b => `
+            <tr>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${b.doctor}</div></td>
+                <td>${b.specialty}</td>
+                <td>${b.datetime}</td>
+                <td><span class="badge ${b.status === 'Scheduled' ? 'badge-warning' : b.status === 'Completed' ? 'badge-success' : 'badge-danger'}">${b.status}</span></td>
+                <td>
+                    ${b.status === 'Scheduled' ? 
+                    `<button class="btn btn-accent" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; margin-right: 0.5rem;">Reschedule</button>
+                     <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);">Cancel</button>` : 
+                    `<span style="color: var(--clr-text-muted); font-size: 0.9rem;">No actions</span>`}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Render Patient Medical Records
+    if (patientRecordsBody) {
+        patientRecordsBody.innerHTML = mockPatientHistory.map(record => `
+            <tr>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${record.date}</div></td>
+                <td>${record.diagnosis}</td>
+                <td>${record.treatment}</td>
+                <td>
+                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);">
+                        <i class="fa-solid fa-file-pdf"></i> Download PDF
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 }
 
