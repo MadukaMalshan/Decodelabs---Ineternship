@@ -46,10 +46,10 @@
 
             <nav class="sidebar-nav">
                 <ul class="nav-list">
-                    <li><a href="#" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-users"></i> Staff Directory</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a></li>
-                    <li><a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a></li>
+                    <li><a href="#" class="nav-item active" data-target="view-dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-staff"><i class="fa-solid fa-users"></i> Staff Directory</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-inventory"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
                 </ul>
             </nav>
 
@@ -60,60 +60,169 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="section-header">
-                <h2>Admin Control Center</h2>
-                <p>System overview and facility management.</p>
-            </header>
             
-            <div class="dashboard-grid admin-grid">
-                <!-- Queue Monitor -->
-                <article class="card queue-status">
-                    <h3><i class="fa-solid fa-users-line"></i> Queue Status Monitor</h3>
-                    <div id="queue-monitor" class="queue-stats">
-                        <p class="loading-state">Loading queue data...</p>
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="view-section active animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Admin Control Center</h2>
+                        <p>System overview and facility management.</p>
                     </div>
-                </article>
+                </header>
+                
+                <div class="dashboard-grid admin-grid">
+                    <!-- Queue Monitor -->
+                    <article class="card queue-status">
+                        <h3><i class="fa-solid fa-users-line"></i> Queue Status Monitor</h3>
+                        <div id="queue-monitor" class="queue-stats">
+                            <p class="loading-state">Loading queue data...</p>
+                        </div>
+                    </article>
 
-                <!-- Doctor Roster -->
-                <article class="card doctor-roster">
-                    <h3><i class="fa-solid fa-user-doctor"></i> Doctor Schedule & Roster</h3>
+                    <!-- Doctor Roster -->
+                    <article class="card doctor-roster">
+                        <h3><i class="fa-solid fa-user-doctor"></i> Doctor Schedule & Roster</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor</th>
+                                        <th>Specialty</th>
+                                        <th>Shift</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roster-table-body">
+                                    <tr><td colspan="4" class="loading-state text-center">Loading roster data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+
+                    <!-- Inventory Basics -->
+                    <article class="card inventory-basics">
+                        <h3><i class="fa-solid fa-boxes-stacked"></i> Inventory Basics</h3>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Category</th>
+                                        <th>Stock Level</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table-body">
+                                    <tr><td colspan="4" class="loading-state text-center">Loading inventory data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <!-- Staff Directory View -->
+            <div id="view-staff" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Staff Directory</h2>
+                        <p>Manage medical and administrative personnel.</p>
+                    </div>
+                    <button class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> Add Staff</button>
+                </header>
+                
+                <article class="card">
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Doctor</th>
-                                    <th>Specialty</th>
-                                    <th>Shift</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Department</th>
+                                    <th>Contact</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="roster-table-body">
-                                <tr><td colspan="4" class="loading-state text-center">Loading roster data...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-
-                <!-- Inventory Basics -->
-                <article class="card inventory-basics">
-                    <h3><i class="fa-solid fa-boxes-stacked"></i> Inventory Basics</h3>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Category</th>
-                                    <th>Stock Level</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-table-body">
-                                <tr><td colspan="4" class="loading-state text-center">Loading inventory data...</td></tr>
+                            <tbody id="full-staff-table-body">
+                                <tr><td colspan="6" class="loading-state text-center">Loading staff data...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </article>
             </div>
+
+            <!-- Full Inventory View -->
+            <div id="view-inventory" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Inventory Management</h2>
+                        <p>Track supplies and manage stock levels.</p>
+                    </div>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Item</button>
+                </header>
+                
+                <article class="card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item ID</th>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Stock Level</th>
+                                    <th>Last Updated</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-inventory-table-body">
+                                <tr><td colspan="7" class="loading-state text-center">Loading inventory data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Settings View -->
+            <div id="view-settings" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>System Settings</h2>
+                        <p>Manage your preferences and system configurations.</p>
+                    </div>
+                </header>
+                
+                <article class="card" style="max-width: 600px;">
+                    <form class="dynamic-form" onsubmit="event.preventDefault(); alert('Settings saved successfully!');">
+                        <div class="form-group">
+                            <label>Admin Name</label>
+                            <input type="text" value="Admin Portal" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" value="admin@meditrack.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>System Theme</label>
+                            <select>
+                                <option>Energetic Glassmorphism</option>
+                                <option>Dark Mode</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Notifications</label>
+                            <select>
+                                <option>Enabled (All Alerts)</option>
+                                <option>Important Only</option>
+                                <option>Disabled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                    </form>
+                </article>
+            </div>
+
         </main>
     </div>
 

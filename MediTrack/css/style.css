@@ -535,9 +535,13 @@ button, input, select, textarea { font-family: inherit; }
     .main-content { padding: 3rem 4rem; }
 }
 
-.section-header { margin-bottom: 2rem; }
+.section-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
 .section-header h2 { font-size: var(--fs-h1); color: var(--clr-text-main); margin-bottom: 0.5rem; }
 .section-header p { color: var(--clr-text-muted); }
+
+/* SPA View Sections */
+.view-section { display: none; }
+.view-section.active { display: block; }
 
 /* --- 2025 Aesthetic Cards & Grids --- */
 .dashboard-grid {

@@ -85,11 +85,53 @@ function getBadgeClass(status) {
     return 'badge-success';
 }
 
+// --- SPA Routing Logic ---
+function initSPA() {
+    const navItems = document.querySelectorAll('.sidebar-nav .nav-item[data-target]');
+    const views = document.querySelectorAll('.view-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Remove active from all nav items
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // Add active to clicked nav item
+            item.classList.add('active');
+
+            // Hide all views
+            views.forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Show target view
+            const targetId = item.getAttribute('data-target');
+            const targetView = document.getElementById(targetId);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            // Close sidebar on mobile after click
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (window.innerWidth < 1024 && sidebar && overlay) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('show');
+            }
+        });
+    });
+}
+
 // --- Admin Dashboard Logic ---
 function renderAdminDashboard() {
+    initSPA();
+
     const queueMonitor = document.getElementById('queue-monitor');
     const rosterBody = document.getElementById('roster-table-body');
     const inventoryBody = document.getElementById('inventory-table-body');
+    
+    // New SPA Full Views
+    const fullStaffBody = document.getElementById('full-staff-table-body');
+    const fullInventoryBody = document.getElementById('full-inventory-table-body');
 
     if (queueMonitor) {
         queueMonitor.innerHTML = `
@@ -113,7 +155,7 @@ function renderAdminDashboard() {
     }
 
     if (rosterBody) {
-        rosterBody.innerHTML = mockDoctors.map(doctor => `
+        rosterBody.innerHTML = mockDoctors.slice(0, 3).map(doctor => `
             <tr>
                 <td>${doctor.name}</td>
                 <td>${mockSpecialties.find(s => s.id === doctor.specialty)?.name || 'General'}</td>
@@ -124,12 +166,47 @@ function renderAdminDashboard() {
     }
 
     if (inventoryBody) {
-        inventoryBody.innerHTML = mockInventory.map(item => `
+        inventoryBody.innerHTML = mockInventory.slice(0, 3).map(item => `
             <tr>
                 <td>${item.item}</td>
                 <td>${item.category}</td>
                 <td>${item.stock}</td>
                 <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    // Render Full Staff Directory
+    if (fullStaffBody) {
+        fullStaffBody.innerHTML = mockDoctors.map(staff => `
+            <tr>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${staff.name}</div></td>
+                <td>Doctor</td>
+                <td>${mockSpecialties.find(s => s.id === staff.specialty)?.name || 'General'}</td>
+                <td><i class="fa-solid fa-envelope" style="color:var(--clr-text-muted); margin-right:5px;"></i> contact@meditrack.com</td>
+                <td><span class="badge ${getBadgeClass(staff.status)}">${staff.status}</span></td>
+                <td>
+                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);"><i class="fa-solid fa-pen"></i> Edit</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Render Full Inventory Management
+    if (fullInventoryBody) {
+        fullInventoryBody.innerHTML = mockInventory.map(item => `
+            <tr>
+                <td style="font-family: monospace; color: var(--clr-text-muted);">${item.id.toUpperCase()}</td>
+                <td><div style="font-weight: 600; color: var(--clr-text-main);">${item.item}</div></td>
+                <td>${item.category}</td>
+                <td>${item.stock} units</td>
+                <td>Today, 08:30 AM</td>
+                <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
+                <td>
+                    <button class="btn ${item.status === 'Low' || item.status === 'Critical' ? 'btn-accent' : ''}" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">
+                        ${item.status === 'Low' || item.status === 'Critical' ? 'Order Stock' : 'Update'}
+                    </button>
+                </td>
             </tr>
         `).join('');
     }
