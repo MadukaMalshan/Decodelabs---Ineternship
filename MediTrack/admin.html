@@ -128,7 +128,10 @@
                         <h2>Staff Directory</h2>
                         <p>Manage medical and administrative personnel.</p>
                     </div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> Add Staff</button>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="text" id="staff-search-input" placeholder="Search by name, role..." style="padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: var(--border-radius-sm); outline: none;">
+                        <button class="btn btn-primary" onclick="document.getElementById('add-staff-modal').classList.add('show')"><i class="fa-solid fa-user-plus"></i> Add Staff</button>
+                    </div>
                 </header>
                 
                 <article class="card">
@@ -159,7 +162,10 @@
                         <h2>Inventory Management</h2>
                         <p>Track supplies and manage stock levels.</p>
                     </div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Item</button>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="text" id="inventory-search-input" placeholder="Search item, category..." style="padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: var(--border-radius-sm); outline: none;">
+                        <button class="btn btn-primary" onclick="document.getElementById('add-inventory-modal').classList.add('show')"><i class="fa-solid fa-plus"></i> Add Item</button>
+                    </div>
                 </header>
                 
                 <article class="card">
@@ -228,6 +234,195 @@
 
     <!-- Overlay for mobile sidebar -->
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Modal for Adding New Staff -->
+    <div id="add-staff-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="add-staff-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="add-staff-title">Add New Staff Member</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="add-staff-form" class="dynamic-form" onsubmit="event.preventDefault(); document.getElementById('add-staff-modal').classList.remove('show'); alert('New staff member added successfully!'); this.reset();">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" placeholder="e.g. John" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" placeholder="e.g. Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select required>
+                            <option value="">Select Role...</option>
+                            <option>Doctor</option>
+                            <option>Nurse</option>
+                            <option>Administrator</option>
+                            <option>Receptionist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department / Specialty</label>
+                        <select required>
+                            <option value="">Select Department...</option>
+                            <option>Cardiology</option>
+                            <option>Neurology</option>
+                            <option>Pediatrics</option>
+                            <option>Orthopedics</option>
+                            <option>General Practice</option>
+                            <option>Administration</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="john.doe@meditrack.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="tel" placeholder="+1 234 567 8900" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Confirm & Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Staff -->
+    <div id="edit-staff-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="edit-staff-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="edit-staff-title">Edit Staff Member</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="edit-staff-form" class="dynamic-form">
+                    <input type="hidden" id="edit-staff-id">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="edit-staff-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="edit-staff-role" required>
+                            <option value="">Select Role...</option>
+                            <option>Doctor</option>
+                            <option>Nurse</option>
+                            <option>Administrator</option>
+                            <option>Receptionist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department / Specialty</label>
+                        <select id="edit-staff-specialty" required>
+                            <option value="">Select Department...</option>
+                            <option value="cardio">Cardiology</option>
+                            <option value="neuro">Neurology</option>
+                            <option value="pedia">Pediatrics</option>
+                            <option value="ortho">Orthopedics</option>
+                            <option value="derma">Dermatology</option>
+                            <option value="optha">Ophthalmology</option>
+                            <option value="admin">Administration</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shift</label>
+                        <select id="edit-staff-shift" required>
+                            <option>Morning</option>
+                            <option>Evening</option>
+                            <option>Night</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Inventory -->
+    <div id="add-inventory-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="add-inventory-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="add-inventory-title">Add New Inventory Item</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="add-inventory-form" class="dynamic-form">
+                    <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" placeholder="e.g. Surgical Gloves" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select required>
+                            <option value="">Select Category...</option>
+                            <option>PPE</option>
+                            <option>Hygiene</option>
+                            <option>Pharmacy</option>
+                            <option>Supplies</option>
+                            <option>Equipment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Stock Level</label>
+                        <input type="number" placeholder="e.g. 500" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select required>
+                            <option>Good</option>
+                            <option>Low</option>
+                            <option>Critical</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Add Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Inventory -->
+    <div id="edit-inventory-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="edit-inventory-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="edit-inventory-title">Edit Inventory Item</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="edit-inventory-form" class="dynamic-form">
+                    <input type="hidden" id="edit-inventory-id">
+                    <div class="form-group">
+                        <label>Item Name</label>
+                        <input type="text" id="edit-inventory-item" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="edit-inventory-category" required>
+                            <option value="">Select Category...</option>
+                            <option>PPE</option>
+                            <option>Hygiene</option>
+                            <option>Pharmacy</option>
+                            <option>Supplies</option>
+                            <option>Equipment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Level</label>
+                        <input type="number" id="edit-inventory-stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="edit-inventory-status" required>
+                            <option>Good</option>
+                            <option>Low</option>
+                            <option>Critical</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
 </body>

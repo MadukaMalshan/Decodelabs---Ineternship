@@ -87,7 +87,10 @@
                         <h2>Inpatient Management</h2>
                         <p>Track admitted patients under your care.</p>
                     </div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Admit Patient</button>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <input type="text" id="inpatient-search-input" placeholder="Search patient, diagnosis..." style="padding: 0.6rem 1rem; border: 1px solid #e2e8f0; border-radius: var(--border-radius-sm); outline: none;">
+                        <button class="btn btn-primary" onclick="document.getElementById('admit-patient-modal').classList.add('show')"><i class="fa-solid fa-plus"></i> Admit Patient</button>
+                    </div>
                 </header>
                 
                 <article class="card">
@@ -123,7 +126,7 @@
                 <div class="dashboard-grid">
                     <article class="card digital-prescription">
                         <h3><i class="fa-solid fa-pen-to-square"></i> Issue New Prescription</h3>
-                        <form id="prescription-form" class="dynamic-form" onsubmit="event.preventDefault(); alert('Prescription Issued!');">
+                        <form id="prescription-form" class="dynamic-form">
                             <div class="form-group">
                                 <label for="patient-search">Patient Name</label>
                                 <input type="text" id="patient-search" placeholder="Search patient..." required>
@@ -146,10 +149,11 @@
                                         <th>Date</th>
                                         <th>Medication</th>
                                         <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recent-prescriptions-body">
-                                    <tr><td colspan="4" class="loading-state text-center">Loading history...</td></tr>
+                                    <tr><td colspan="5" class="loading-state text-center">Loading history...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -210,6 +214,79 @@
             </header>
             <div class="modal-body" id="modal-history-content">
                 <p class="loading-state">Retrieving records...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Admitting Patient -->
+    <div id="admit-patient-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="admit-patient-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="admit-patient-title">Admit New Patient</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="admit-patient-form" class="dynamic-form">
+                    <div class="form-group">
+                        <label>Patient Name</label>
+                        <input type="text" placeholder="e.g. David Beckham" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ward / Room</label>
+                        <input type="text" placeholder="e.g. Ward A - Room 104" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Diagnosis</label>
+                        <input type="text" placeholder="e.g. Appendicitis" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select required>
+                            <option>Stable</option>
+                            <option>Improving</option>
+                            <option>Critical</option>
+                            <option>Observation</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Admit Patient</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Inpatient -->
+    <div id="edit-inpatient-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="edit-inpatient-title">
+        <div class="modal-content" style="max-width: 500px;">
+            <header class="modal-header">
+                <h3 id="edit-inpatient-title">Edit Patient Details</h3>
+                <button class="close-modal" aria-label="Close modal">&times;</button>
+            </header>
+            <div class="modal-body">
+                <form id="edit-inpatient-form" class="dynamic-form">
+                    <input type="hidden" id="edit-inpatient-id">
+                    <div class="form-group">
+                        <label>Patient Name</label>
+                        <input type="text" id="edit-inpatient-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ward / Room</label>
+                        <input type="text" id="edit-inpatient-ward" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Diagnosis</label>
+                        <input type="text" id="edit-inpatient-diagnosis" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select id="edit-inpatient-condition" required>
+                            <option>Stable</option>
+                            <option>Improving</option>
+                            <option>Critical</option>
+                            <option>Observation</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                </form>
             </div>
         </div>
     </div>

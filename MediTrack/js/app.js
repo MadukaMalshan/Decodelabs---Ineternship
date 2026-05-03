@@ -10,7 +10,7 @@ const mockSpecialties = [
     { id: 'optha', name: 'Ophthalmology', icon: 'fa-eye' }
 ];
 
-const mockDoctors = [
+let mockDoctors = [
     { id: 'd1', name: 'Dr. Sarah Connor', specialty: 'cardio', shift: 'Morning', status: 'Available' },
     { id: 'd2', name: 'Dr. John Smith', specialty: 'neuro', shift: 'Evening', status: 'Busy' },
     { id: 'd3', name: 'Dr. Emily Chen', specialty: 'pedia', shift: 'Morning', status: 'Available' },
@@ -23,7 +23,7 @@ const mockAppointments = [
     { id: 'a3', patientName: 'Charlie Brown', time: '11:45 AM', type: 'Consultation', status: 'Scheduled' }
 ];
 
-const mockInventory = [
+let mockInventory = [
     { id: 'i1', item: 'Surgical Masks', category: 'PPE', stock: 1500, status: 'Good' },
     { id: 'i2', item: 'Hand Sanitizer', category: 'Hygiene', stock: 120, status: 'Low' },
     { id: 'i3', item: 'Amoxicillin 500mg', category: 'Pharmacy', stock: 45, status: 'Critical' },
@@ -36,6 +36,17 @@ const mockPatientHistory = [
     { date: '2023-11-05', diagnosis: 'Sprained Ankle', treatment: 'Rest, ice, compression, and elevation (RICE). Prescribed Ibuprofen.' }
 ];
 
+let mockInpatients = [
+    { id: 'p1', name: "John Doe", ward: "Ward A - Room 102", date: "2026-05-01", diagnosis: "Pneumonia", condition: "Stable" },
+    { id: 'p2', name: "Jane Smith", ward: "ICU - Bed 4", date: "2026-05-02", diagnosis: "Post-surgery observation", condition: "Critical" },
+    { id: 'p3', name: "Michael Johnson", ward: "Ward B - Room 205", date: "2026-04-28", diagnosis: "Fractured Femur", condition: "Improving" }
+];
+
+let mockPrescriptions = [
+    { id: 'rx1', patient: "Alice Johnson", date: "2026-05-02", meds: "Amoxicillin 500mg", status: "Dispensed" },
+    { id: 'rx2', patient: "Bob Williams", date: "2026-05-03", meds: "Lisinopril 10mg", status: "Pending" }
+];
+
 const mockQueueStatus = {
     totalWaiting: 14,
     avgWaitTime: '25 mins',
@@ -46,6 +57,7 @@ const mockQueueStatus = {
 // --- Initialization & Routing ---
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
+    initModal();
     
     const path = window.location.pathname;
     if (path.includes('admin.html')) {
@@ -124,6 +136,9 @@ function initSPA() {
 // --- Admin Dashboard Logic ---
 function renderAdminDashboard() {
     initSPA();
+    
+    const staffSearchQuery = document.getElementById('staff-search-input')?.value.toLowerCase() || '';
+    const inventorySearchQuery = document.getElementById('inventory-search-input')?.value.toLowerCase() || '';
 
     const queueMonitor = document.getElementById('queue-monitor');
     const rosterBody = document.getElementById('roster-table-body');
@@ -178,37 +193,61 @@ function renderAdminDashboard() {
 
     // Render Full Staff Directory
     if (fullStaffBody) {
-        fullStaffBody.innerHTML = mockDoctors.map(staff => `
-            <tr>
-                <td><div style="font-weight: 600; color: var(--clr-text-main);">${staff.name}</div></td>
-                <td>Doctor</td>
-                <td>${mockSpecialties.find(s => s.id === staff.specialty)?.name || 'General'}</td>
-                <td><i class="fa-solid fa-envelope" style="color:var(--clr-text-muted); margin-right:5px;"></i> contact@meditrack.com</td>
-                <td><span class="badge ${getBadgeClass(staff.status)}">${staff.status}</span></td>
-                <td>
-                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);"><i class="fa-solid fa-pen"></i> Edit</button>
-                </td>
-            </tr>
-        `).join('');
+        let filteredStaff = mockDoctors;
+        if (staffSearchQuery !== '') {
+            filteredStaff = mockDoctors.filter(staff => 
+                staff.name.toLowerCase().includes(staffSearchQuery) || 
+                (mockSpecialties.find(s => s.id === staff.specialty)?.name || 'General').toLowerCase().includes(staffSearchQuery)
+            );
+        }
+
+        if (filteredStaff.length === 0) {
+            fullStaffBody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding: 2rem;">No staff members found matching "${staffSearchQuery}"</td></tr>`;
+        } else {
+            fullStaffBody.innerHTML = filteredStaff.map(staff => `
+                <tr>
+                    <td><div style="font-weight: 600; color: var(--clr-text-main);">${staff.name}</div></td>
+                    <td>Doctor</td>
+                    <td>${mockSpecialties.find(s => s.id === staff.specialty)?.name || 'General'}</td>
+                    <td><i class="fa-solid fa-envelope" style="color:var(--clr-text-muted); margin-right:5px;"></i> contact@meditrack.com</td>
+                    <td><span class="badge ${getBadgeClass(staff.status)}">${staff.status}</span></td>
+                    <td>
+                        <button class="btn" onclick="openEditStaffModal('${staff.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary); margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button class="btn" onclick="deleteStaff('${staff.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     // Render Full Inventory Management
     if (fullInventoryBody) {
-        fullInventoryBody.innerHTML = mockInventory.map(item => `
-            <tr>
-                <td style="font-family: monospace; color: var(--clr-text-muted);">${item.id.toUpperCase()}</td>
-                <td><div style="font-weight: 600; color: var(--clr-text-main);">${item.item}</div></td>
-                <td>${item.category}</td>
-                <td>${item.stock} units</td>
-                <td>Today, 08:30 AM</td>
-                <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
-                <td>
-                    <button class="btn ${item.status === 'Low' || item.status === 'Critical' ? 'btn-accent' : ''}" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">
-                        ${item.status === 'Low' || item.status === 'Critical' ? 'Order Stock' : 'Update'}
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        let filteredInventory = mockInventory;
+        if (inventorySearchQuery !== '') {
+            filteredInventory = mockInventory.filter(item => 
+                item.item.toLowerCase().includes(inventorySearchQuery) || 
+                item.category.toLowerCase().includes(inventorySearchQuery)
+            );
+        }
+
+        if (filteredInventory.length === 0) {
+            fullInventoryBody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding: 2rem;">No inventory items found matching "${inventorySearchQuery}"</td></tr>`;
+        } else {
+            fullInventoryBody.innerHTML = filteredInventory.map(item => `
+                <tr>
+                    <td style="font-family: monospace; color: var(--clr-text-muted);">${item.id.toUpperCase()}</td>
+                    <td><div style="font-weight: 600; color: var(--clr-text-main);">${item.item}</div></td>
+                    <td>${item.category}</td>
+                    <td>${item.stock} units</td>
+                    <td>Today, 08:30 AM</td>
+                    <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
+                    <td>
+                        <button class="btn" onclick="openEditInventoryModal('${item.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary); margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button class="btn" onclick="deleteInventory('${item.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);"><i class="fa-solid fa-trash"></i> Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 }
 
@@ -259,44 +298,51 @@ function renderDoctorDashboard() {
 
     // Render Inpatients
     if (inpatientsBody) {
-        const mockInpatients = [
-            { name: "John Doe", ward: "Ward A - Room 102", date: "2026-05-01", diagnosis: "Pneumonia", condition: "Stable" },
-            { name: "Jane Smith", ward: "ICU - Bed 4", date: "2026-05-02", diagnosis: "Post-surgery observation", condition: "Critical" },
-            { name: "Michael Johnson", ward: "Ward B - Room 205", date: "2026-04-28", diagnosis: "Fractured Femur", condition: "Improving" }
-        ];
+        const searchInput = document.getElementById('inpatient-search-input');
+        const query = searchInput ? searchInput.value.toLowerCase() : '';
+        
+        let filteredInpatients = mockInpatients;
+        if (query) {
+            filteredInpatients = mockInpatients.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.diagnosis.toLowerCase().includes(query)
+            );
+        }
 
-        inpatientsBody.innerHTML = mockInpatients.map(patient => `
-            <tr>
-                <td><div style="font-weight: 600; color: var(--clr-text-main);">${patient.name}</div></td>
-                <td>${patient.ward}</td>
-                <td>${patient.date}</td>
-                <td>${patient.diagnosis}</td>
-                <td><span class="badge ${patient.condition === 'Critical' ? 'badge-danger' : 'badge-success'}">${patient.condition}</span></td>
-                <td>
-                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);">View Vitals</button>
-                </td>
-            </tr>
-        `).join('');
+        if (filteredInpatients.length === 0) {
+            inpatientsBody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding: 2rem;">No patients found matching "${query}"</td></tr>`;
+        } else {
+            inpatientsBody.innerHTML = filteredInpatients.map(patient => `
+                <tr>
+                    <td><div style="font-weight: 600; color: var(--clr-text-main);">${patient.name}</div></td>
+                    <td>${patient.ward}</td>
+                    <td>${patient.date}</td>
+                    <td>${patient.diagnosis}</td>
+                    <td><span class="badge ${patient.condition === 'Critical' ? 'badge-danger' : 'badge-success'}">${patient.condition}</span></td>
+                    <td>
+                        <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary); margin-right: 0.5rem;" onclick="alert('Viewing Vitals for ${patient.name}')">Vitals</button>
+                        <button class="btn" onclick="openEditInpatientModal('${patient.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary); margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn" onclick="dischargePatient('${patient.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);">Discharge</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     // Render Recent Prescriptions
     if (recentPrescriptionsBody) {
-        const mockRecentPrescriptions = [
-            { patient: "Alice Johnson", date: "Today", meds: "Amoxicillin 500mg", status: "Dispensed" },
-            { patient: "Bob Williams", date: "Yesterday", meds: "Lisinopril 10mg", status: "Pending" }
-        ];
-
-        recentPrescriptionsBody.innerHTML = mockRecentPrescriptions.map(rx => `
+        recentPrescriptionsBody.innerHTML = mockPrescriptions.map(rx => `
             <tr>
                 <td><div style="font-weight: 600; color: var(--clr-text-main);">${rx.patient}</div></td>
                 <td>${rx.date}</td>
                 <td>${rx.meds}</td>
                 <td><span class="badge ${rx.status === 'Dispensed' ? 'badge-success' : 'badge-warning'}">${rx.status}</span></td>
+                <td>
+                    <button class="btn" onclick="cancelPrescription('${rx.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);"><i class="fa-solid fa-trash"></i></button>
+                </td>
             </tr>
         `).join('');
     }
-    
-    initModal();
 }
 
 // --- Patient Dashboard Logic ---
@@ -402,10 +448,11 @@ function renderPatientDashboard() {
 
 // --- Modal Utilities ---
 function initModal() {
-    const modal = document.getElementById('medical-history-modal');
-    const closeBtns = document.querySelectorAll('.close-modal');
-
-    if (modal) {
+    const modals = document.querySelectorAll('.modal');
+    
+    modals.forEach(modal => {
+        const closeBtns = modal.querySelectorAll('.close-modal');
+        
         const closeModal = () => modal.classList.remove('show');
         
         closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
@@ -417,7 +464,7 @@ function initModal() {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
         });
-    }
+    });
 }
 
 function openHistoryModal(patientName) {
@@ -437,6 +484,222 @@ function openHistoryModal(patientName) {
         `).join('');
 
         modal.classList.add('show');
+    }
+}
+
+// --- Staff Directory CRUD Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Search Listener
+    const staffSearchInput = document.getElementById('staff-search-input');
+    if (staffSearchInput) {
+        staffSearchInput.addEventListener('input', () => renderAdminDashboard());
+    }
+
+    // Add Staff Listener
+    const addStaffForm = document.getElementById('add-staff-form');
+    if (addStaffForm) {
+        addStaffForm.onsubmit = (e) => {
+            e.preventDefault();
+            const inputs = addStaffForm.querySelectorAll('input, select');
+            const newStaff = {
+                id: 'd' + Date.now(),
+                name: (inputs[1].value === 'Doctor' ? 'Dr. ' : '') + inputs[0].value,
+                specialty: inputs[2].value,
+                shift: 'Morning',
+                status: 'Available'
+            };
+            mockDoctors.push(newStaff);
+            document.getElementById('add-staff-modal').classList.remove('show');
+            alert('New staff member added successfully!');
+            addStaffForm.reset();
+            renderAdminDashboard();
+        };
+    }
+
+    // Edit Staff Listener
+    const editStaffForm = document.getElementById('edit-staff-form');
+    if (editStaffForm) {
+        editStaffForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-staff-id').value;
+            const index = mockDoctors.findIndex(d => d.id === id);
+            if (index !== -1) {
+                mockDoctors[index].name = document.getElementById('edit-staff-name').value;
+                mockDoctors[index].specialty = document.getElementById('edit-staff-specialty').value;
+                mockDoctors[index].shift = document.getElementById('edit-staff-shift').value;
+                
+                document.getElementById('edit-staff-modal').classList.remove('show');
+                renderAdminDashboard();
+            }
+        };
+    }
+});
+
+function openEditStaffModal(id) {
+    const staff = mockDoctors.find(d => d.id === id);
+    if (staff) {
+        document.getElementById('edit-staff-id').value = staff.id;
+        document.getElementById('edit-staff-name').value = staff.name;
+        document.getElementById('edit-staff-specialty').value = staff.specialty || '';
+        document.getElementById('edit-staff-shift').value = staff.shift || 'Morning';
+        
+        document.getElementById('edit-staff-modal').classList.add('show');
+    }
+}
+
+function deleteStaff(id) {
+    if (confirm("Are you sure you want to delete this staff member?")) {
+        const index = mockDoctors.findIndex(d => d.id === id);
+        if (index !== -1) {
+            mockDoctors.splice(index, 1);
+            renderAdminDashboard();
+        }
+    }
+}
+
+// --- Inventory CRUD Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Search Listener
+    const inventorySearchInput = document.getElementById('inventory-search-input');
+    if (inventorySearchInput) {
+        inventorySearchInput.addEventListener('input', () => renderAdminDashboard());
+    }
+
+    // Add Inventory Listener
+    const addInventoryForm = document.getElementById('add-inventory-form');
+    if (addInventoryForm) {
+        addInventoryForm.onsubmit = (e) => {
+            e.preventDefault();
+            const inputs = addInventoryForm.querySelectorAll('input, select');
+            const newItem = {
+                id: 'i' + Math.floor(Math.random() * 1000),
+                item: inputs[0].value,
+                category: inputs[1].value,
+                stock: parseInt(inputs[2].value) || 0,
+                status: inputs[3].value
+            };
+            mockInventory.push(newItem);
+            document.getElementById('add-inventory-modal').classList.remove('show');
+            alert('New inventory item added successfully!');
+            addInventoryForm.reset();
+            renderAdminDashboard();
+        };
+    }
+
+    // Edit Inventory Listener
+    const editInventoryForm = document.getElementById('edit-inventory-form');
+    if (editInventoryForm) {
+        editInventoryForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-inventory-id').value;
+            const index = mockInventory.findIndex(i => i.id === id);
+            if (index !== -1) {
+                mockInventory[index].item = document.getElementById('edit-inventory-item').value;
+                mockInventory[index].category = document.getElementById('edit-inventory-category').value;
+                mockInventory[index].stock = parseInt(document.getElementById('edit-inventory-stock').value) || 0;
+                mockInventory[index].status = document.getElementById('edit-inventory-status').value;
+                
+                document.getElementById('edit-inventory-modal').classList.remove('show');
+                renderAdminDashboard();
+            }
+        };
+    }
+});
+
+function openEditInventoryModal(id) {
+    const item = mockInventory.find(i => i.id === id);
+    if (item) {
+        document.getElementById('edit-inventory-id').value = item.id;
+        document.getElementById('edit-inventory-item').value = item.item;
+        document.getElementById('edit-inventory-category').value = item.category;
+        document.getElementById('edit-inventory-stock').value = item.stock;
+        document.getElementById('edit-inventory-status').value = item.status;
+        
+        document.getElementById('edit-inventory-modal').classList.add('show');
+    }
+}
+
+function deleteInventory(id) {
+    if (confirm("Are you sure you want to delete this inventory item?")) {
+        const index = mockInventory.findIndex(i => i.id === id);
+        if (index !== -1) {
+            mockInventory.splice(index, 1);
+            renderAdminDashboard();
+        }
+    }
+}
+
+// --- Inpatient CRUD Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Search Listener
+    const inpatientSearchInput = document.getElementById('inpatient-search-input');
+    if (inpatientSearchInput) {
+        inpatientSearchInput.addEventListener('input', () => renderDoctorDashboard());
+    }
+
+    // Admit Patient Listener
+    const admitPatientForm = document.getElementById('admit-patient-form');
+    if (admitPatientForm) {
+        admitPatientForm.onsubmit = (e) => {
+            e.preventDefault();
+            const inputs = admitPatientForm.querySelectorAll('input, select');
+            const today = new Date();
+            const newPatient = {
+                id: 'p' + Date.now(),
+                name: inputs[0].value,
+                ward: inputs[1].value,
+                diagnosis: inputs[2].value,
+                condition: inputs[3].value,
+                date: today.toISOString().split('T')[0]
+            };
+            mockInpatients.push(newPatient);
+            document.getElementById('admit-patient-modal').classList.remove('show');
+            alert('Patient admitted successfully!');
+            admitPatientForm.reset();
+            renderDoctorDashboard();
+        };
+    }
+
+    // Edit Inpatient Listener
+    const editInpatientForm = document.getElementById('edit-inpatient-form');
+    if (editInpatientForm) {
+        editInpatientForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-inpatient-id').value;
+            const index = mockInpatients.findIndex(p => p.id === id);
+            if (index !== -1) {
+                mockInpatients[index].name = document.getElementById('edit-inpatient-name').value;
+                mockInpatients[index].ward = document.getElementById('edit-inpatient-ward').value;
+                mockInpatients[index].diagnosis = document.getElementById('edit-inpatient-diagnosis').value;
+                mockInpatients[index].condition = document.getElementById('edit-inpatient-condition').value;
+                
+                document.getElementById('edit-inpatient-modal').classList.remove('show');
+                renderDoctorDashboard();
+            }
+        };
+    }
+});
+
+function openEditInpatientModal(id) {
+    const patient = mockInpatients.find(p => p.id === id);
+    if (patient) {
+        document.getElementById('edit-inpatient-id').value = patient.id;
+        document.getElementById('edit-inpatient-name').value = patient.name;
+        document.getElementById('edit-inpatient-ward').value = patient.ward;
+        document.getElementById('edit-inpatient-diagnosis').value = patient.diagnosis;
+        document.getElementById('edit-inpatient-condition').value = patient.condition;
+        
+        document.getElementById('edit-inpatient-modal').classList.add('show');
+    }
+}
+
+function dischargePatient(id) {
+    if (confirm("Are you sure you want to discharge this patient?")) {
+        const index = mockInpatients.findIndex(p => p.id === id);
+        if (index !== -1) {
+            mockInpatients.splice(index, 1);
+            renderDoctorDashboard();
+        }
     }
 }
 
@@ -513,4 +776,39 @@ function initNetworkAnimation() {
     }
     
     animate();
+}
+
+// --- Prescription Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    const prescriptionForm = document.getElementById('prescription-form');
+    if (prescriptionForm) {
+        prescriptionForm.onsubmit = (e) => {
+            e.preventDefault();
+            const patientInput = document.getElementById('patient-search');
+            const medsInput = document.getElementById('medication');
+            
+            const newRx = {
+                id: 'rx' + Date.now(),
+                patient: patientInput.value,
+                date: new Date().toISOString().split('T')[0],
+                meds: medsInput.value,
+                status: 'Pending'
+            };
+            
+            mockPrescriptions.push(newRx);
+            alert('Prescription issued successfully!');
+            prescriptionForm.reset();
+            renderDoctorDashboard();
+        };
+    }
+});
+
+function cancelPrescription(id) {
+    if (confirm("Are you sure you want to cancel this prescription?")) {
+        const index = mockPrescriptions.findIndex(rx => rx.id === id);
+        if (index !== -1) {
+            mockPrescriptions.splice(index, 1);
+            renderDoctorDashboard();
+        }
+    }
 }
