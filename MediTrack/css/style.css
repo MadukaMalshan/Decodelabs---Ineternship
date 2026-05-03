@@ -707,3 +707,176 @@ input:checked + .slider:before { transform: translateX(22px); }
 .history-entry { border-left: 3px solid var(--clr-btn-primary); padding-left: 1.5rem; margin-bottom: 2rem; }
 .history-entry h5 { color: var(--clr-text-main); margin-bottom: 0.5rem; }
 .history-entry .date { font-size: var(--fs-small); font-weight: 600; color: var(--clr-accent); margin-bottom: 0.5rem; }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (≤ 768px)
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    /* --- Landing Page --- */
+    .hero-section {
+        padding: 3rem 5% 2rem;
+        gap: 2rem;
+    }
+    .hero-content {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    .hero-title { font-size: clamp(1.6rem, 7vw, 2.5rem); letter-spacing: -0.5px; }
+    .hero-subtitle { font-size: 1rem; }
+    .hero-visual { display: none !important; }
+
+    .trust-banner {
+        gap: 1.5rem;
+        padding: 1.5rem 5%;
+    }
+    .trust-stat h3 { font-size: 1.5rem; }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .feature-card { padding: 1.5rem 1rem; }
+
+    .portal-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .portal-card { padding: 1.5rem 1rem; }
+    .section-title { margin-bottom: 1.5rem; }
+
+    .app-header { padding: 0.75rem 5%; }
+
+    /* --- Dashboard Layout --- */
+    .main-content { padding: 1.25rem 4%; }
+
+    /* --- Section Headers --- */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .section-header > div:last-child,
+    .section-header > .btn,
+    .section-header > div[style] {
+        width: 100%;
+    }
+    /* Search bar + button row should wrap properly */
+    .section-header div[style*="display: flex"] {
+        flex-direction: column !important;
+        width: 100%;
+        gap: 0.75rem !important;
+    }
+    .section-header div[style*="display: flex"] input {
+        width: 100%;
+    }
+    .section-header div[style*="display: flex"] button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* --- Queue Stats Grid (Admin) --- */
+    .queue-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .stat-box { padding: 1rem 0.75rem; }
+    .stat-box h4 { font-size: 2rem; }
+    .stat-box p { font-size: 0.75rem; }
+
+    /* --- Dashboard Grids --- */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+    /* Override any span classes on mobile */
+    .dashboard-grid article[style*="grid-column: span"],
+    .dashboard-grid .specialties-list,
+    .dashboard-grid .book-appointment,
+    .dashboard-grid .today-appointments,
+    .dashboard-grid .virtual-waiting-room {
+        grid-column: span 1 !important;
+    }
+
+    /* --- Cards --- */
+    .card { padding: 1.25rem; }
+    .card h3 { font-size: 1rem; margin-bottom: 1rem; }
+
+    /* --- Tables --- */
+    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { min-width: 520px; }
+    .data-table th, .data-table td { padding: 0.65rem 0.75rem; font-size: 0.8rem; }
+
+    /* Action buttons in table cells */
+    .data-table td button {
+        padding: 0.15rem 0.4rem !important;
+        font-size: 0.75rem !important;
+        margin-right: 0.25rem !important;
+    }
+
+    /* --- Appointment Items (Doctor) --- */
+    .appointment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    /* --- Specialties Grid (Patient) --- */
+    .specialties-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 0.75rem;
+    }
+    .specialty-item { padding: 1rem 0.5rem; }
+    .specialty-item i { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .specialty-item h4 { font-size: 0.8rem; }
+
+    /* --- Waiting Room (Patient) --- */
+    .waiting-room-status h4 { font-size: 2.5rem; }
+
+    /* --- Digital Prescription layout (Doctor) --- */
+    .digital-prescription { order: -1; }
+
+    /* --- Modals --- */
+    .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 0.75rem;
+        border-radius: var(--border-radius-md);
+    }
+    .modal-header { padding: 1rem 1.25rem; }
+    .modal-body { padding: 1.25rem; max-height: 80vh; }
+
+    /* --- Forms --- */
+    .dynamic-form { gap: 0.85rem; }
+    .form-group input, .form-group select, .form-group textarea {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
+    }
+
+    /* --- Settings Card --- */
+    article.card[style*="max-width: 600px"] { max-width: 100% !important; }
+
+    /* --- Profile widget in sidebar --- */
+    .user-profile-widget { padding: 1.5rem 1rem; }
+    .avatar { width: 52px; height: 52px; }
+
+    /* --- Inline search inputs in headers (overflow fix) --- */
+    input[id$="-search-input"] {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* Extra small screens (≤ 400px) */
+@media (max-width: 400px) {
+    .queue-stats { grid-template-columns: 1fr; }
+    .stat-box h4 { font-size: 1.75rem; }
+    .hero-title { font-size: 1.4rem; }
+    .trust-banner { flex-direction: column; gap: 1rem; align-items: center; }
+    .specialties-grid { grid-template-columns: repeat(3, 1fr); }
+    .badge { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+}
+
