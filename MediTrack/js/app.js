@@ -47,6 +47,12 @@ let mockPrescriptions = [
     { id: 'rx2', patient: "Bob Williams", date: "2026-05-03", meds: "Lisinopril 10mg", status: "Pending" }
 ];
 
+let mockBookings = [
+    { id: 'b1', doctor: "Dr. Emily Chen", specialty: "Pediatrics", datetime: "2026-05-10, 09:00 AM", status: "Scheduled" },
+    { id: 'b2', doctor: "Dr. Sarah Connor", specialty: "Cardiology", datetime: "2026-04-20, 10:30 AM", status: "Completed" },
+    { id: 'b3', doctor: "Dr. Michael Lee", specialty: "Orthopedics", datetime: "2026-03-15, 02:15 PM", status: "Cancelled" }
+];
+
 const mockQueueStatus = {
     totalWaiting: 14,
     avgWaitTime: '25 mins',
@@ -407,26 +413,24 @@ function renderPatientDashboard() {
 
     // Render Patient Bookings
     if (patientBookingsBody) {
-        const mockPatientBookings = [
-            { doctor: "Dr. Emily Chen", specialty: "Pediatrics", datetime: "2026-05-10, 09:00 AM", status: "Scheduled" },
-            { doctor: "Dr. Sarah Connor", specialty: "Cardiology", datetime: "2026-04-20, 10:30 AM", status: "Completed" },
-            { doctor: "Dr. Michael Lee", specialty: "Orthopedics", datetime: "2026-03-15, 02:15 PM", status: "Cancelled" }
-        ];
-
-        patientBookingsBody.innerHTML = mockPatientBookings.map(b => `
-            <tr>
-                <td><div style="font-weight: 600; color: var(--clr-text-main);">${b.doctor}</div></td>
-                <td>${b.specialty}</td>
-                <td>${b.datetime}</td>
-                <td><span class="badge ${b.status === 'Scheduled' ? 'badge-warning' : b.status === 'Completed' ? 'badge-success' : 'badge-danger'}">${b.status}</span></td>
-                <td>
-                    ${b.status === 'Scheduled' ? 
-                    `<button class="btn btn-accent" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; margin-right: 0.5rem;">Reschedule</button>
-                     <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);">Cancel</button>` : 
-                    `<span style="color: var(--clr-text-muted); font-size: 0.9rem;">No actions</span>`}
-                </td>
-            </tr>
-        `).join('');
+        if (mockBookings.length === 0) {
+            patientBookingsBody.innerHTML = `<tr><td colspan="5" class="text-center" style="padding: 2rem; color: var(--clr-text-muted);">No bookings yet. <a href="#" data-target="view-home" style="color: var(--clr-btn-primary);">Book an appointment</a>.</td></tr>`;
+        } else {
+            patientBookingsBody.innerHTML = mockBookings.map(b => `
+                <tr>
+                    <td><div style="font-weight: 600; color: var(--clr-text-main);">${b.doctor}</div></td>
+                    <td>${b.specialty}</td>
+                    <td>${b.datetime}</td>
+                    <td><span class="badge ${b.status === 'Scheduled' ? 'badge-warning' : b.status === 'Completed' ? 'badge-success' : 'badge-danger'}">${b.status}</span></td>
+                    <td>
+                        ${b.status === 'Scheduled' ?
+                        `<button class="btn btn-accent" onclick="rescheduleBooking('${b.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; margin-right: 0.5rem;">Reschedule</button>
+                         <button class="btn" onclick="cancelBooking('${b.id}')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(220, 38, 38, 0.1); color: var(--clr-danger);">Cancel</button>` :
+                        `<span style="color: var(--clr-text-muted); font-size: 0.9rem;">No actions</span>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     // Render Patient Medical Records
@@ -437,12 +441,60 @@ function renderPatientDashboard() {
                 <td>${record.diagnosis}</td>
                 <td>${record.treatment}</td>
                 <td>
-                    <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);">
+                    <button class="btn" onclick="alert('Downloading report for: ${record.diagnosis}...')" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background: rgba(13, 148, 136, 0.1); color: var(--clr-btn-primary);">
                         <i class="fa-solid fa-file-pdf"></i> Download PDF
                     </button>
                 </td>
             </tr>
         `).join('');
+    }
+
+    // Booking form submission
+    const bookingForm = document.getElementById('booking-form');
+    if (bookingForm) {
+        bookingForm.onsubmit = (e) => {
+            e.preventDefault();
+            const doctorSelect = document.getElementById('doctor-select');
+            const specialtyFilter = document.getElementById('specialty-filter');
+            const dateInput = document.getElementById('appointment-date');
+
+            const selectedDoctor = doctorSelect.options[doctorSelect.selectedIndex]?.text;
+            const selectedSpecialty = specialtyFilter.options[specialtyFilter.selectedIndex]?.text;
+            const selectedDate = dateInput.value;
+
+            if (!selectedDoctor || doctorSelect.value === '' || !selectedDate) {
+                alert('Please select a specialty, doctor, and date.');
+                return;
+            }
+
+            const newBooking = {
+                id: 'b' + Date.now(),
+                doctor: selectedDoctor,
+                specialty: selectedSpecialty,
+                datetime: selectedDate + ', 09:00 AM',
+                status: 'Scheduled'
+            };
+            mockBookings.unshift(newBooking);
+            alert(`Appointment with ${selectedDoctor} on ${selectedDate} booked successfully!`);
+            bookingForm.reset();
+            doctorSelect.innerHTML = '<option value="">First select a specialty</option>';
+            doctorSelect.disabled = true;
+        };
+    }
+
+    // Settings form
+    const settingsForm = document.querySelector('#view-settings form');
+    if (settingsForm) {
+        settingsForm.onsubmit = (e) => {
+            e.preventDefault();
+            const nameInput = settingsForm.querySelector('input[type="text"]');
+            const newName = nameInput?.value;
+            if (newName) {
+                const sidebarName = document.querySelector('.user-name');
+                if (sidebarName) sidebarName.textContent = newName;
+            }
+            alert('Profile details saved successfully!');
+        };
     }
 }
 
@@ -700,6 +752,24 @@ function dischargePatient(id) {
             mockInpatients.splice(index, 1);
             renderDoctorDashboard();
         }
+    }
+}
+
+// --- Patient Booking CRUD Logic ---
+function cancelBooking(id) {
+    if (confirm("Are you sure you want to cancel this appointment?")) {
+        const index = mockBookings.findIndex(b => b.id === id);
+        if (index !== -1) {
+            mockBookings[index].status = 'Cancelled';
+            renderPatientDashboard();
+        }
+    }
+}
+
+function rescheduleBooking(id) {
+    const booking = mockBookings.find(b => b.id === id);
+    if (booking) {
+        alert(`Reschedule feature: Please contact the clinic to reschedule your appointment with ${booking.doctor}.`);
     }
 }
 
