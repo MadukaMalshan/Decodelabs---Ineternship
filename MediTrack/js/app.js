@@ -374,7 +374,8 @@ function renderPatientDashboard() {
         `;
     }
 
-    // Render Specialties Form Dropdown
+    
+    
     if (specialtyFilter) {
         specialtyFilter.innerHTML = '<option value="">Select a specialty</option>' + 
             mockSpecialties.map(spec => `<option value="${spec.id}">${spec.name}</option>`).join('');
