@@ -633,6 +633,28 @@ button, input, select, textarea { font-family: inherit; }
 .data-table tbody tr { transition: var(--transition); }
 .data-table tbody tr:hover td { background: #eef2f6; }
 
+/* Truncated ID Cell Styling */
+.data-table td:first-child { 
+    word-break: break-word; 
+    overflow-wrap: break-word;
+}
+.btn-icon.copy-id-btn {
+    transition: all 0.2s ease;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+.btn-icon.copy-id-btn:hover {
+    color: var(--clr-btn-primary) !important;
+    transform: scale(1.1);
+}
+
 /* Status Badges */
 .badge {
     padding: 0.35rem 0.75rem;
@@ -777,14 +799,6 @@ input:checked + .slider:before { transform: translateX(22px); }
         justify-content: center;
     }
 
-    /* --- Queue Stats Grid (Admin) --- */
-    .queue-stats {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-    }
-    .stat-box { padding: 1rem 0.75rem; }
-    .stat-box h4 { font-size: 2rem; }
-    .stat-box p { font-size: 0.75rem; }
 
     /* --- Dashboard Grids --- */
     .dashboard-grid {
@@ -800,14 +814,27 @@ input:checked + .slider:before { transform: translateX(22px); }
         grid-column: span 1 !important;
     }
 
-    /* --- Cards --- */
+    /* --- Queue Stats MUST override dashboard-grid single col --- */
+    .queue-stats {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem;
+    }
+    .stat-box { padding: 0.85rem 0.65rem; }
+    .stat-box h4 { font-size: 1.75rem; }
+    .stat-box p { font-size: 0.72rem; }
+
     .card { padding: 1.25rem; }
     .card h3 { font-size: 1rem; margin-bottom: 1rem; }
 
     /* --- Tables --- */
     .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .data-table { min-width: 520px; }
-    .data-table th, .data-table td { padding: 0.65rem 0.75rem; font-size: 0.8rem; }
+    .data-table { min-width: 400px; }
+    .data-table th, .data-table td { padding: 0.5rem 0.6rem; font-size: 0.78rem; }
+    /* Hide less important columns on small screens using column shorten */
+    /* Prescription table: hide Date column to fit better */
+    .digital-prescription ~ .card .data-table th:nth-child(2),
+    .digital-prescription ~ .card .data-table td:nth-child(2) { display: none; }
 
     /* Action buttons in table cells */
     .data-table td button {

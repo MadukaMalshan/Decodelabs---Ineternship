@@ -243,18 +243,18 @@
                 <button class="close-modal" aria-label="Close modal">&times;</button>
             </header>
             <div class="modal-body">
-                <form id="add-staff-form" class="dynamic-form" onsubmit="event.preventDefault(); document.getElementById('add-staff-modal').classList.remove('show'); alert('New staff member added successfully!'); this.reset();">
+                <form id="add-staff-form" class="dynamic-form">
                     <div class="form-group">
                         <label>First Name</label>
-                        <input type="text" placeholder="e.g. John" required>
+                        <input type="text" id="add-staff-fname" placeholder="e.g. John" required>
                     </div>
                     <div class="form-group">
                         <label>Last Name</label>
-                        <input type="text" placeholder="e.g. Doe" required>
+                        <input type="text" id="add-staff-lname" placeholder="e.g. Doe" required>
                     </div>
                     <div class="form-group">
                         <label>Role</label>
-                        <select required>
+                        <select id="add-staff-role" required>
                             <option value="">Select Role...</option>
                             <option>Doctor</option>
                             <option>Nurse</option>
@@ -264,23 +264,23 @@
                     </div>
                     <div class="form-group">
                         <label>Department / Specialty</label>
-                        <select required>
+                        <select id="add-staff-specialty" required>
                             <option value="">Select Department...</option>
-                            <option>Cardiology</option>
-                            <option>Neurology</option>
-                            <option>Pediatrics</option>
-                            <option>Orthopedics</option>
-                            <option>General Practice</option>
-                            <option>Administration</option>
+                            <option value="cardio">Cardiology</option>
+                            <option value="neuro">Neurology</option>
+                            <option value="pedia">Pediatrics</option>
+                            <option value="ortho">Orthopedics</option>
+                            <option value="derma">Dermatology</option>
+                            <option value="optha">Ophthalmology</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" placeholder="john.doe@meditrack.com" required>
+                        <input type="email" id="add-staff-email" placeholder="john.doe@meditrack.com" required>
                     </div>
                     <div class="form-group">
                         <label>Contact Number</label>
-                        <input type="tel" placeholder="+1 234 567 8900" required>
+                        <input type="tel" id="add-staff-contact" placeholder="+1 234 567 8900" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Confirm & Add</button>
                 </form>
