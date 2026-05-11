@@ -363,17 +363,29 @@
                             <option>Equipment</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Initial Stock Level</label>
-                        <input type="number" placeholder="e.g. 500" required>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Initial Stock Level</label>
+                            <input type="number" id="add-inventory-stock" placeholder="e.g. 500" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Unit of Measure</label>
+                            <input type="text" id="add-inventory-unit" placeholder="e.g. pieces, boxes" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select required>
-                            <option>Good</option>
-                            <option>Low</option>
-                            <option>Critical</option>
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Reorder Level</label>
+                            <input type="number" id="add-inventory-reorder" placeholder="e.g. 50" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="add-inventory-status" required>
+                                <option>Good</option>
+                                <option>Low</option>
+                                <option>Critical</option>
+                            </select>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Add Item</button>
                 </form>
@@ -406,17 +418,29 @@
                             <option>Equipment</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Stock Level</label>
-                        <input type="number" id="edit-inventory-stock" required>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Stock Level</label>
+                            <input type="number" id="edit-inventory-stock" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Unit of Measure</label>
+                            <input type="text" id="edit-inventory-unit" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="edit-inventory-status" required>
-                            <option>Good</option>
-                            <option>Low</option>
-                            <option>Critical</option>
-                        </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Reorder Level</label>
+                            <input type="number" id="edit-inventory-reorder" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="edit-inventory-status" required>
+                                <option>Good</option>
+                                <option>Low</option>
+                                <option>Critical</option>
+                            </select>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
                 </form>

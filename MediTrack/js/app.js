@@ -1,17 +1,31 @@
 // app.js - MediTrack Frontend (API-Connected)
 const API = 'http://localhost:5000/api/v1';
 
-// Role config per page
-function getAuth() {
+let authCache = null;
+async function getAuth() {
+    if (authCache) return authCache;
     const p = window.location.pathname;
-    if (p.includes('admin.html'))   return { role: 'admin',   id: 'admin1' };
-    if (p.includes('doctor.html'))  return { role: 'doctor',  id: 'd1' };
-    if (p.includes('patient.html')) return { role: 'patient', id: 'pat1' };
-    return { role: 'admin', id: 'admin1' };
+    let role = 'admin', id = 'admin1';
+    
+    if (p.includes('doctor.html')) role = 'doctor';
+    if (p.includes('patient.html')) role = 'patient';
+
+    if (role === 'doctor' || role === 'patient') {
+        try {
+            // Use dummy auth just to get the list
+            const opts = { headers: { 'X-Role': 'admin', 'X-User-Id': 'admin1' } };
+            const res = await fetch(`${API}/${role}s`, opts);
+            const { data } = await res.json();
+            if (data && data.length > 0) id = data[0].id;
+        } catch(e) { console.warn('Could not fetch real ID, using fallback', e); }
+    }
+    
+    authCache = { role, id };
+    return authCache;
 }
 
 async function api(endpoint, method = 'GET', body = null) {
-    const auth = getAuth();
+    const auth = await getAuth();
     const opts = {
         method,
         headers: { 'Content-Type': 'application/json', 'X-Role': auth.role, 'X-User-Id': auth.id }
@@ -184,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 specialty: spec, 
                 shift: 'Morning', 
                 email: email,
-                contact: contact
+                phone: contact
             });
             document.getElementById('add-staff-modal').classList.remove('show');
             af.reset(); 
@@ -209,7 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const inp = aif.querySelectorAll('input, select');
         try {
-            await api('/inventory', 'POST', { item: inp[0].value, category: inp[1].value, stock: parseInt(inp[2].value)||0, unit: 'units', status: inp[3].value });
+            await api('/inventory', 'POST', { 
+                item_name: inp[0].value, 
+                category: inp[1].value, 
+                quantity_in_stock: parseInt(inp[2].value)||0, 
+                unit_of_measure: inp[3].value, 
+                reorder_level: parseInt(inp[4].value)||50, 
+                status: inp[5].value 
+            });
             document.getElementById('add-inventory-modal').classList.remove('show');
             aif.reset(); renderAdminDashboard();
         } catch(e) {}
@@ -219,7 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const id = document.getElementById('edit-inventory-id').value;
         try {
-            await api(`/inventory/${id}`, 'PUT', { item: document.getElementById('edit-inventory-item').value, category: document.getElementById('edit-inventory-category').value, stock: parseInt(document.getElementById('edit-inventory-stock').value)||0, status: document.getElementById('edit-inventory-status').value });
+            await api(`/inventory/${id}`, 'PUT', { 
+                item_name: document.getElementById('edit-inventory-item').value, 
+                category: document.getElementById('edit-inventory-category').value, 
+                quantity_in_stock: parseInt(document.getElementById('edit-inventory-stock').value)||0, 
+                unit_of_measure: document.getElementById('edit-inventory-unit').value,
+                reorder_level: parseInt(document.getElementById('edit-inventory-reorder').value)||50,
+                status: document.getElementById('edit-inventory-status').value 
+            });
             document.getElementById('edit-inventory-modal').classList.remove('show');
             renderAdminDashboard();
         } catch(e) {}
@@ -240,7 +268,7 @@ async function renderDoctorDashboard() {
         const ac = document.getElementById('availability-checkbox'), as = document.getElementById('availability-status');
         if (ac && as) ac.addEventListener('change', async (e) => {
             const st = e.target.checked ? 'Available' : 'Offline';
-            try { await api(`/doctors/${getAuth().id}/status`, 'PUT', { status: st }); as.textContent = st; as.style.color = st === 'Available' ? 'var(--clr-success)' : 'var(--clr-danger)'; } catch(e) {}
+            try { await api(`/doctors/${(await getAuth()).id}/status`, 'PUT', { status: st }); as.textContent = st; as.style.color = st === 'Available' ? 'var(--clr-success)' : 'var(--clr-danger)'; } catch(e) {}
         });
 
         // Inpatients - still local (no inpatient endpoint exposed to frontend yet)
@@ -258,7 +286,7 @@ async function renderDoctorDashboard() {
         // Prescriptions from API
         const { data: rxs } = await api('/prescriptions');
         const rpb = document.getElementById('recent-prescriptions-body');
-        if (rpb) rpb.innerHTML = rxs.map(rx => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${rx.patientName}</div></td><td>${rx.issuedDate||rx.date}</td><td>${rx.medications||rx.meds}</td><td><span class="badge ${rx.status==='Dispensed'?'badge-success':'badge-warning'}">${rx.status}</span></td><td><button class="btn" onclick="cancelPrescription('${rx.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+        if (rpb) rpb.innerHTML = rxs.map(rx => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${rx.patientName}</div></td><td>${rx.issuedDate||rx.date}</td><td>${rx.medicationName||rx.medications||rx.meds}</td><td><span class="badge ${rx.status==='Dispensed'?'badge-success':'badge-warning'}">${rx.status}</span></td><td><button class="btn" onclick="cancelPrescription('${rx.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
     } catch(e) { console.error('Doctor render:', e); }
 }
 
@@ -275,13 +303,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const ips = document.getElementById('inpatient-search-input');
     if (ips) ips.addEventListener('input', () => renderDoctorDashboard());
 
+    const apf = document.getElementById('admit-patient-form');
+    if (apf) apf.onsubmit = (e) => {
+        e.preventDefault();
+        alert('✅ Patient successfully admitted! (Mock Data)');
+        document.getElementById('admit-patient-modal').classList.remove('show');
+        apf.reset();
+        renderDoctorDashboard();
+    };
+
     const pf = document.getElementById('prescription-form');
     if (pf) pf.onsubmit = async (e) => {
         e.preventDefault();
         const patient = document.getElementById('patient-search').value;
-        const meds = document.getElementById('medication').value;
+        const medicationName = document.getElementById('medicationName').value;
+        const dosage = document.getElementById('dosage').value;
+        const frequency = document.getElementById('frequency').value;
+        const durationDays = parseInt(document.getElementById('durationDays').value) || 7;
+        const instructions = document.getElementById('instructions').value;
+        
         try {
-            await api('/prescriptions', 'POST', { patientId: 'pat1', patientName: patient, medications: meds });
+            // Find patient ID
+            const { data: pats } = await api('/patients');
+            const pat = pats.find(p => p.name.toLowerCase().includes(patient.toLowerCase())) || pats[0];
+            if (!pat) return alert('No patient found!');
+            
+            await api('/prescriptions', 'POST', { 
+                patientId: pat.id, 
+                medicationName, 
+                dosage, 
+                frequency, 
+                durationDays, 
+                instructions 
+            });
             alert('Prescription issued!'); pf.reset(); renderDoctorDashboard();
         } catch(e) {}
     };
@@ -315,7 +369,7 @@ async function renderPatientDashboard() {
         if (sg) sg.innerHTML = specs.map(s => `<div class="specialty-item" onclick="document.getElementById('specialty-filter').value='${s.id}';document.getElementById('specialty-filter').dispatchEvent(new Event('change'));window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid ${s.icon}"></i><h4>${s.name}</h4></div>`).join('');
 
         // Bookings from API
-        const { data: bookings } = await api(`/patients/${getAuth().id}/appointments`);
+        const { data: bookings } = await api(`/patients/${(await getAuth()).id}/appointments`);
         const bb = document.getElementById('patient-bookings-body');
         if (bb) {
             if (bookings.length === 0) bb.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:2rem;color:var(--clr-text-muted)">No bookings yet.</td></tr>`;
@@ -336,9 +390,11 @@ async function renderPatientDashboard() {
             e.preventDefault();
             const docSel = document.getElementById('doctor-select');
             const dateIn = document.getElementById('appointment-date');
-            if (!docSel.value || !dateIn.value) { alert('Select specialty, doctor and date'); return; }
+            const timeIn = document.getElementById('appointment-time');
+            const typeIn = document.getElementById('appointment-type');
+            if (!docSel.value || !dateIn.value || !timeIn.value || !typeIn.value) { alert('Select specialty, doctor, date, time and type'); return; }
             try {
-                await api('/appointments', 'POST', { patientId: getAuth().id, patientName: 'Alex Doe', doctorId: docSel.value, date: dateIn.value, time: '09:00 AM', type: 'Checkup' });
+                await api('/appointments', 'POST', { patientId: (await getAuth()).id, doctorId: docSel.value, date: dateIn.value, time: timeIn.value, type: typeIn.value });
                 alert('Appointment booked!'); bf.reset(); docSel.innerHTML = '<option value="">First select a specialty</option>'; docSel.disabled = true;
                 renderPatientDashboard();
             } catch(e) {}

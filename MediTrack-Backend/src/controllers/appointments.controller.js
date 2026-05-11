@@ -107,10 +107,13 @@ const createAppointment = async (req, res, next) => {
 
         // Verify doctor exists using parameterized query
         const doctor = await db.queryOne(
-            'SELECT d.id, d.name, s.id AS specialty FROM doctors d LEFT JOIN specialties s ON d.specialty_id = s.id WHERE d.id = $1',
+            'SELECT d.id, d.name, d.status, s.id AS specialty FROM doctors d LEFT JOIN specialties s ON d.specialty_id = s.id WHERE d.id = $1',
             [doctorId]
         );
         if (!doctor) return next(createError(404, `Doctor with ID '${doctorId}' not found.`));
+        if (doctor.status !== 'Available') {
+            return next(createError(409, `Semantic validation failed: Dr. ${doctor.name} is currently '${doctor.status}' and cannot accept new appointments.`));
+        }
 
         // Insert appointment with parameterized query
         const query = `

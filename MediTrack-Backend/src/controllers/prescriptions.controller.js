@@ -102,7 +102,7 @@ const issuePrescription = async (req, res, next) => {
 
         // Calculate expiry date if not provided
         const issuedDate = new Date().toISOString().split('T')[0];
-        const finalExpiryDate = expiryDate || new Date(new Date().setDate(new Date().getDate() + (durationDays * 2))).toISOString().split('T')[0];
+        const finalExpiryDate = expiryDate || new Date(new Date().setDate(new Date().getDate() + parseInt(durationDays))).toISOString().split('T')[0];
 
         // Insert with parameterized query
         const query = `

@@ -5,13 +5,13 @@ const router = express.Router();
 
 const { requireAuth } = require('../middleware/auth.middleware');
 const { runValidation, validateAppointmentDate, validateDoctorExists, validateDoctorAvailability } = require('../middleware/validate.middleware');
-const db = require('../db/mockDb');
+
 const ctrl = require('../controllers/appointments.controller');
 
 // ─── Syntactic Validation Rules ───────────────────────────────────────────────
 const appointmentCreateRules = [
     body('patientId').notEmpty().withMessage('patientId is required.'),
-    body('patientName').notEmpty().trim().withMessage('patientName is required.'),
+
     body('doctorId').notEmpty().withMessage('doctorId is required.'),
     body('date')
         .notEmpty().withMessage('date is required.')
@@ -37,8 +37,6 @@ router.post('/',
     appointmentCreateRules,
     runValidation,                        // SYNTACTIC gate
     validateAppointmentDate,              // SEMANTIC: date not in past
-    validateDoctorExists(db),            // SEMANTIC: doctor must exist
-    validateDoctorAvailability(db),      // SEMANTIC: doctor must be available
     ctrl.createAppointment
 );
 

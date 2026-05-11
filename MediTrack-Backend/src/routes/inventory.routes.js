@@ -8,10 +8,11 @@ const { runValidation } = require('../middleware/validate.middleware');
 const ctrl = require('../controllers/inventory.controller');
 
 const inventoryCreateRules = [
-    body('item').notEmpty().trim().withMessage('item name is required.'),
+    body('item_name').notEmpty().trim().withMessage('item_name is required.'),
     body('category').notEmpty().withMessage('category is required.'),
-    body('stock').isInt({ min: 0 }).withMessage('stock must be a non-negative integer.'),
-    body('unit').notEmpty().withMessage('unit is required (e.g., pieces, bottles, boxes).')
+    body('quantity_in_stock').isInt({ min: 0 }).withMessage('quantity_in_stock must be a non-negative integer.'),
+    body('unit_of_measure').notEmpty().withMessage('unit_of_measure is required (e.g., pieces, bottles, boxes).'),
+    body('reorder_level').isInt({ min: 1 }).withMessage('reorder_level must be a positive integer.')
 ];
 
 // GET /api/v1/inventory — Admin & Doctor can monitor
@@ -26,7 +27,7 @@ router.post('/', requireAuth('admin'), inventoryCreateRules, runValidation, ctrl
 // PUT /api/v1/inventory/:id — Admin only
 router.put('/:id',
     requireAuth('admin'),
-    [body('stock').optional().isInt({ min: 0 }).withMessage('stock must be a non-negative integer.')],
+    [body('quantity_in_stock').optional().isInt({ min: 0 }).withMessage('quantity_in_stock must be a non-negative integer.')],
     runValidation,
     ctrl.updateInventoryItem
 );

@@ -18,8 +18,10 @@ router.post('/',
     requireAuth('doctor'),
     [
         body('patientId').notEmpty().withMessage('patientId is required.'),
-        body('patientName').notEmpty().trim().withMessage('patientName is required.'),
-        body('medications').notEmpty().trim().withMessage('medications field is required.')
+        body('medicationName').notEmpty().trim().withMessage('medicationName is required.'),
+        body('dosage').notEmpty().trim().withMessage('dosage is required.'),
+        body('frequency').notEmpty().trim().withMessage('frequency is required.'),
+        body('durationDays').isInt({ min: 1 }).withMessage('durationDays must be a positive integer.')
     ],
     runValidation,
     ctrl.issuePrescription

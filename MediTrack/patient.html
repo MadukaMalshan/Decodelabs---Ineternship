@@ -91,9 +91,24 @@
                                     <option value="">First select a specialty</option>
                                 </select>
                             </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="appointment-date">Date</label>
+                                    <input type="date" id="appointment-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="appointment-time">Time</label>
+                                    <input type="time" id="appointment-time" required>
+                                </div>
+                            </div>
                             <div class="form-group">
-                                <label for="appointment-date">Date</label>
-                                <input type="date" id="appointment-date" required>
+                                <label for="appointment-type">Appointment Type</label>
+                                <select id="appointment-type" required>
+                                    <option value="Checkup">Checkup</option>
+                                    <option value="Follow-up">Follow-up</option>
+                                    <option value="Consultation">Consultation</option>
+                                    <option value="Emergency">Emergency</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary w-full">Book Now</button>
                         </form>

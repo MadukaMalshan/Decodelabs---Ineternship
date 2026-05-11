@@ -132,8 +132,34 @@
                                 <input type="text" id="patient-search" placeholder="Search patient..." required>
                             </div>
                             <div class="form-group">
-                                <label for="medication">Medication & Dosage</label>
-                                <textarea id="medication" rows="4" placeholder="e.g. Amoxicillin 500mg, 1 tablet twice a day..." required></textarea>
+                                <label for="medicationName">Medication Name</label>
+                                <input type="text" id="medicationName" placeholder="e.g. Amoxicillin" required>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="dosage">Dosage</label>
+                                    <input type="text" id="dosage" placeholder="e.g. 500mg" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="frequency">Frequency</label>
+                                    <select id="frequency" required>
+                                        <option>Once daily</option>
+                                        <option>Twice daily</option>
+                                        <option>Thrice daily</option>
+                                        <option>Four times daily</option>
+                                        <option>As needed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="durationDays">Duration (Days)</label>
+                                    <input type="number" id="durationDays" min="1" placeholder="e.g. 7" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="instructions">Instructions</label>
+                                    <input type="text" id="instructions" placeholder="Optional notes">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary w-full">Issue Prescription</button>
                         </form>
@@ -229,23 +255,37 @@
                 <form id="admit-patient-form" class="dynamic-form">
                     <div class="form-group">
                         <label>Patient Name</label>
-                        <input type="text" placeholder="e.g. David Beckham" required>
+                        <input type="text" id="admit-patient-name" placeholder="e.g. David Beckham" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                        <div class="form-group">
+                            <label>Ward</label>
+                            <input type="text" id="admit-patient-ward" placeholder="e.g. Ward A" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Room</label>
+                            <input type="text" id="admit-patient-room" placeholder="e.g. 104">
+                        </div>
+                        <div class="form-group">
+                            <label>Bed</label>
+                            <input type="text" id="admit-patient-bed" placeholder="e.g. B-1">
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Ward / Room</label>
-                        <input type="text" placeholder="e.g. Ward A - Room 104" required>
+                        <label>Admission Date</label>
+                        <input type="date" id="admit-patient-date" required>
                     </div>
                     <div class="form-group">
                         <label>Diagnosis</label>
-                        <input type="text" placeholder="e.g. Appendicitis" required>
+                        <input type="text" id="admit-patient-diagnosis" placeholder="e.g. Appendicitis" required>
                     </div>
                     <div class="form-group">
                         <label>Condition</label>
-                        <select required>
-                            <option>Stable</option>
-                            <option>Improving</option>
-                            <option>Critical</option>
-                            <option>Observation</option>
+                        <select id="admit-patient-condition" required>
+                            <option value="Stable">Stable</option>
+                            <option value="Improving">Improving</option>
+                            <option value="Critical">Critical</option>
+                            <option value="Deteriorating">Deteriorating</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Admit Patient</button>
