@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediTrack - Admin Dashboard</title>
+    <!-- Pre-render Auth Guard (Blood-Brain Barrier) -->
+    <style>.hidden-skeleton { display: none !important; visibility: hidden !important; }</style>
+    <script>
+        try {
+            const auth = localStorage.getItem('meditrack_user');
+            if (!auth) {
+                window.location.replace('login.html');
+            } else {
+                const parsed = JSON.parse(auth);
+                if (!parsed || parsed.role !== 'admin') {
+                    window.location.replace('login.html');
+                } else {
+                    // Apply saved theme before paint
+                    const t = parsed.preferredTheme || localStorage.getItem('meditrack_theme') || 'light';
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            }
+        } catch(e) {
+            window.location.replace('login.html');
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.remove('hidden-skeleton');
+        });
+    </script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +37,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body hidden-skeleton">
 
     <!-- Mobile Header -->
     <header class="mobile-header">
@@ -49,12 +73,13 @@
                     <li><a href="#" class="nav-item active" data-target="view-dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
                     <li><a href="#" class="nav-item" data-target="view-staff"><i class="fa-solid fa-users"></i> Staff Directory</a></li>
                     <li><a href="#" class="nav-item" data-target="view-inventory"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a></li>
+                    <li><a href="#" class="nav-item" data-target="view-verification"><i class="fa-solid fa-user-check"></i> Review Doctors</a></li>
                     <li><a href="#" class="nav-item" data-target="view-settings"><i class="fa-solid fa-gear"></i> Settings</a></li>
                 </ul>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="index.html" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                <a href="#" onclick="logout()" class="nav-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
         </aside>
 
@@ -190,6 +215,38 @@
                 </article>
             </div>
 
+            <!-- Verification View -->
+            <div id="view-verification" class="view-section animate-fade-in">
+                <header class="section-header">
+                    <div>
+                        <h2>Doctor Verification & Approval</h2>
+                        <p>Review pending medical practitioner registrations before granting system access.</p>
+                    </div>
+                    <button class="btn btn-accent" onclick="loadPendingDoctors()"><i class="fa-solid fa-rotate"></i> Refresh List</button>
+                </header>
+                
+                <article class="card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Doctor Name</th>
+                                    <th>Specialty</th>
+                                    <th>License Number</th>
+                                    <th>Experience</th>
+                                    <th>Current Clinic</th>
+                                    <th>Registered Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-doctors-body">
+                                <tr><td colspan="7" class="loading-state text-center">Loading pending verifications...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+
             <!-- Settings View -->
             <div id="view-settings" class="view-section animate-fade-in">
                 <header class="section-header">
@@ -200,7 +257,7 @@
                 </header>
                 
                 <article class="card" style="max-width: 600px;">
-                    <form class="dynamic-form" onsubmit="event.preventDefault(); alert('Settings saved successfully!');">
+                    <form class="dynamic-form" id="admin-settings-form">
                         <div class="form-group">
                             <label>Admin Name</label>
                             <input type="text" value="Admin Portal" required>
@@ -211,9 +268,9 @@
                         </div>
                         <div class="form-group">
                             <label>System Theme</label>
-                            <select>
-                                <option>Energetic Glassmorphism</option>
-                                <option>Dark Mode</option>
+                            <select class="settings-theme-select" onchange="setTheme(this.value)">
+                                <option value="light">Light Mode (Default)</option>
+                                <option value="dark">Dark Mode (Deep Charcoal)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -224,7 +281,7 @@
                                 <option>Disabled</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Save Changes</button>
+                        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;" onclick="event.preventDefault(); alert('Settings saved!')">Save Changes</button>
                     </form>
                 </article>
             </div>

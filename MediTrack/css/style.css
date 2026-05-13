@@ -49,6 +49,174 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ============================================================
+   DARK MODE — Deep Charcoal/Teal Medical Aesthetic
+   Applied via: html[data-theme='dark']
+   ============================================================ */
+html[data-theme='dark'] {
+    --clr-background: #0f172a;      /* Deep charcoal navy */
+    --clr-surface: #1e293b;         /* Elevated surface slate */
+    --clr-text-main: #f1f5f9;       /* Near-white high-contrast */
+    --clr-text-muted: #94a3b8;      /* Muted slate for secondary text */
+
+    --clr-primary: #2dd4bf;         /* Bright teal */
+    --clr-primary-dark: #0d9488;
+    --clr-btn-primary: #0d9488;
+    --clr-btn-primary-hover: #0f766e;
+
+    --clr-sidebar-bg: #0f172a;      /* Darker sidebar for depth */
+    --clr-sidebar-text: #f1f5f9;
+    --clr-sidebar-muted: #64748b;
+
+    --clr-success: #34d399;
+    --clr-success-bg: rgba(52, 211, 153, 0.15);
+    --clr-warning: #fbbf24;
+    --clr-warning-bg: rgba(251, 191, 36, 0.15);
+    --clr-danger: #f87171;
+    --clr-danger-bg: rgba(248, 113, 113, 0.15);
+
+    --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    --box-shadow-hover: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode body & surface overrides */
+html[data-theme='dark'] body {
+    background-color: var(--clr-background);
+    color: var(--clr-text-main);
+}
+
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .modal-content,
+html[data-theme='dark'] .portal-card,
+html[data-theme='dark'] .feature-card {
+    background: var(--clr-surface);
+    border-color: rgba(255,255,255,0.06);
+    color: var(--clr-text-main);
+}
+
+html[data-theme='dark'] .data-table th {
+    background: rgba(255,255,255,0.05);
+    color: var(--clr-text-muted);
+}
+
+html[data-theme='dark'] .data-table td {
+    border-color: rgba(255,255,255,0.06);
+    color: var(--clr-text-main);
+}
+
+html[data-theme='dark'] .data-table tr:hover td {
+    background: rgba(255,255,255,0.04);
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+    background: #0f172a;
+    border-color: rgba(255,255,255,0.12);
+    color: var(--clr-text-main);
+}
+
+html[data-theme='dark'] .main-content {
+    background: var(--clr-background);
+}
+
+html[data-theme='dark'] .section-header {
+    border-color: rgba(255,255,255,0.06);
+}
+
+html[data-theme='dark'] .app-header,
+html[data-theme='dark'] .mobile-header {
+    background: #0f172a;
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 1px 12px rgba(0,0,0,0.5);
+}
+
+html[data-theme='dark'] .modal {
+    background: rgba(0,0,0,0.7);
+}
+
+html[data-theme='dark'] .sidebar-overlay {
+    background: rgba(0,0,0,0.6);
+}
+
+html[data-theme='dark'] .trust-banner {
+    background: var(--clr-surface);
+    border-color: rgba(255,255,255,0.06);
+}
+
+html[data-theme='dark'] .hero-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* Theme toggle button shared style */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.15rem;
+    color: inherit;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.theme-toggle-btn:hover {
+    background: rgba(13, 148, 136, 0.18);
+    border-color: #0d9488;
+    transform: rotate(15deg) scale(1.08);
+}
+.theme-toggle-btn .toggle-icon {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+/* Dark background header toggle styling */
+.app-header .theme-toggle-btn {
+    border-color: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.06);
+}
+html[data-theme='dark'] .app-header .theme-toggle-btn {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Dark Mode: Dropdown Option Visibility Fix ---- */
+/* Force OS-level option element rendering in dark contexts */
+html[data-theme='dark'] select {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Chromium/Firefox — option background override */
+html[data-theme='dark'] select option {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+html[data-theme='dark'] select option:checked,
+html[data-theme='dark'] select option:focus,
+html[data-theme='dark'] select option:hover {
+    background-color: #0d9488;
+    color: #ffffff;
+}
+
+/* Form group selects in settings panels */
+html[data-theme='dark'] .form-group select,
+html[data-theme='dark'] .settings-theme-select {
+    background-color: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #f1f5f9;
+}
+
+
+
 /* --- Base Reset --- */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -568,9 +736,54 @@ button, input, select, textarea { font-family: inherit; }
     gap: 1.5rem;
 }
 @media (min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; } }
+
+/* =====================================================
+   ADMIN DASHBOARD — Optimised 3-Row Grid
+   Row 1: Queue stats (full-width horizontal strip)
+   Row 2: Roster (1.6fr) + Inventory sidebar (1fr)
+   Responsive: single column on mobile
+   ===================================================== */
+@media (min-width: 900px) {
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 1.75rem;
+    }
+    /* Queue Monitor — spans full width (top row) */
+    .admin-grid .queue-status {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+    /* Doctor Roster — takes left large column */
+    .admin-grid .doctor-roster {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    /* Inventory Basics — right sidebar column */
+    .admin-grid .inventory-basics {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
+
+/* Tablet: stack all as single column */
+@media (min-width: 600px) and (max-width: 899px) {
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    .admin-grid .queue-status,
+    .admin-grid .doctor-roster,
+    .admin-grid .inventory-basics {
+        grid-column: 1;
+        grid-row: auto;
+    }
+}
+
+/* Doctor / Patient grids unchanged */
 @media (min-width: 1280px) {
-    .admin-grid { grid-template-columns: repeat(3, 1fr); }
-    .admin-grid .doctor-roster { grid-column: span 2; }
     .doctor-grid { grid-template-columns: 1fr 1fr; }
     .patient-grid { grid-template-columns: 1fr 1fr 1fr; }
     .patient-grid .specialties-list { grid-column: span 3; }
@@ -672,10 +885,64 @@ button, input, select, textarea { font-family: inherit; }
 .loading-state { color: var(--clr-text-muted); font-style: italic; opacity: 0.7; }
 
 /* Dashboard Specifics */
-/* Admin */
-.queue-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center; }
-.stat-box { background: var(--clr-background); padding: 1.5rem; border-radius: var(--border-radius-md); }
-.stat-box h4 { font-size: 2.5rem; color: var(--clr-btn-primary); margin-top: 0.5rem; }
+/* ---- Admin Queue Stats — Horizontal 4-card strip ---- */
+.queue-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    text-align: center;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, rgba(13,148,136,0.07) 0%, var(--clr-background) 100%);
+    padding: 1.25rem 1rem;
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(13,148,136,0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.stat-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--clr-btn-primary), #2dd4bf);
+    border-radius: 3px 3px 0 0;
+}
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13,148,136,0.15);
+}
+.stat-box p {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--clr-text-muted);
+    margin-bottom: 0.35rem;
+}
+.stat-box h4 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    color: var(--clr-btn-primary);
+    margin: 0;
+    line-height: 1;
+    font-weight: 800;
+}
+
+/* Collapse to 2×2 on narrow viewport */
+@media (max-width: 899px) {
+    .queue-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 400px) {
+    .queue-stats {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    .stat-box { padding: 1rem 0.75rem; }
+    .stat-box h4 { font-size: 1.75rem; }
+}
 
 /* Doctor */
 .appointment-list { display: flex; flex-direction: column; gap: 1rem; }
@@ -907,3 +1174,324 @@ input:checked + .slider:before { transform: translateX(22px); }
     .badge { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
 }
 
+/* ============================================================
+   TABLE NO-OVERLAP & PROFESSIONAL RESPONSIVENESS
+   Project Standard — Mobile / Tablet / Desktop / 4K
+   ============================================================ */
+
+/* ---- Global table overflow safety ---- */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius-md);
+}
+
+/* ---- Data table: prevent text stacking & overlap ---- */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    table-layout: auto;
+    min-width: 540px;
+}
+
+/* All headers: no wrapping */
+.data-table th {
+    white-space: nowrap;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-size: clamp(0.72rem, 1.2vw, 0.82rem);
+    font-weight: 700;
+    color: var(--clr-text-muted);
+    border-bottom: 2px solid rgba(0,0,0,0.04);
+    letter-spacing: 0.02em;
+}
+
+/* All data cells */
+.data-table td {
+    padding: 0.85rem 1rem;
+    font-size: clamp(0.78rem, 1.3vw, 0.92rem);
+    vertical-align: middle;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Name / key identity columns */
+.data-table td:nth-child(1),
+.data-table th:nth-child(1) {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* Status badge cells — never wrap */
+.data-table .badge,
+.data-table td .badge {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Action button cells */
+.data-table td:last-child {
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+/* Action buttons inside tables */
+.data-table td button.btn {
+    padding: 0.3rem 0.65rem;
+    font-size: clamp(0.7rem, 1.1vw, 0.8rem);
+    white-space: nowrap;
+    margin: 0 0.15rem;
+}
+
+/* Badge sizing */
+.badge {
+    font-size: clamp(0.65rem, 1vw, 0.78rem);
+    white-space: nowrap;
+}
+
+/* Card padding — fluid across breakpoints */
+.card {
+    padding: clamp(1rem, 2.5vw, 2rem);
+}
+
+/* Section headers — wrap without overflow */
+.section-header {
+    flex-wrap: wrap;
+    gap: 1rem;
+    row-gap: 0.75rem;
+}
+
+/* Main content — cap for 4K */
+.main-content {
+    max-width: 1600px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* Appointment items — flex-wrap on tight viewports */
+.appointment-item {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.appointment-info {
+    flex: 1;
+    min-width: 160px;
+}
+
+/* ============================================================
+   TABLET (481px – 1023px)
+   ============================================================ */
+@media (min-width: 481px) and (max-width: 1023px) {
+    .hero-section { padding: 4rem 5%; }
+    .hero-content { max-width: 100%; }
+    .trust-banner { gap: 2rem; padding: 1.5rem 5%; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .portal-grid { grid-template-columns: repeat(2, 1fr); }
+
+    .main-content { padding: 2rem 4%; }
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .admin-grid .doctor-roster { grid-column: span 2; }
+    .patient-grid .book-appointment { grid-column: span 2; }
+
+    .data-table th, .data-table td { padding: 0.75rem 0.85rem; }
+    .data-table { min-width: 480px; }
+
+    .section-header { flex-direction: row; align-items: center; }
+    .modal-content { width: 80%; max-width: 600px; }
+}
+
+/* ============================================================
+   MOBILE CARD-STYLE TABLE (≤ 600px)
+   Converts rows into stacked card blocks
+   ============================================================ */
+@media (max-width: 600px) {
+
+    .table-responsive {
+        overflow-x: visible;
+        box-shadow: none;
+    }
+
+    .data-table,
+    .data-table thead,
+    .data-table tbody,
+    .data-table th,
+    .data-table td,
+    .data-table tr {
+        display: block;
+    }
+
+    /* Hide original column headers */
+    .data-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    /* Each row becomes a card */
+    .data-table tbody tr {
+        background: var(--clr-background);
+        border-radius: var(--border-radius-md);
+        margin-bottom: 1rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border-left: 4px solid var(--clr-btn-primary);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .data-table tbody tr:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    /* Each cell: right-aligned value with left-aligned label */
+    .data-table td {
+        padding: 0.45rem 0.5rem 0.45rem 48%;
+        text-align: right;
+        font-size: 0.85rem;
+        border: none;
+        background: transparent !important;
+        position: relative;
+        max-width: 100%;
+        border-radius: 0 !important;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+    }
+
+    /* Label from data-label attribute */
+    .data-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0.5rem;
+        width: 44%;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: var(--clr-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Action cell: full width, left-aligned */
+    .data-table td:last-child {
+        padding-left: 0.5rem;
+        text-align: left;
+        min-width: unset;
+    }
+    .data-table td:last-child::before { display: none; }
+
+    /* Action buttons: full width in card mode */
+    .data-table td button.btn {
+        width: 100%;
+        justify-content: center;
+        margin: 0.2rem 0;
+    }
+
+    .queue-stats { grid-template-columns: 1fr 1fr !important; }
+
+    .appointment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+/* ============================================================
+   4K / WIDE SCREEN (≥ 1920px)
+   ============================================================ */
+@media (min-width: 1920px) {
+    .hero-section,
+    .features-section,
+    .portals-section,
+    .trust-banner {
+        max-width: 1800px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+
+    /* Admin grid 4K handled separately below */
+
+    .hero-title { font-size: 3.5rem; }
+    .section-title { font-size: 2.2rem; }
+    .card h3 { font-size: 1.2rem; }
+    .data-table th, .data-table td { padding: 1.1rem 1.4rem; }
+    .main-content { padding: 3.5rem 6rem; }
+}
+
+/* ============================================================
+   DARK MODE: Table card overrides
+   ============================================================ */
+html[data-theme='dark'] .data-table tbody tr {
+    background: var(--clr-surface);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+html[data-theme='dark'] .data-table tbody tr:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 600px) {
+    html[data-theme='dark'] .data-table tbody tr {
+        background: #1e293b;
+    }
+}
+
+/* ============================================================
+   ADMIN GRID — 4K override (keeps the 2-col layout, just wider)
+   ============================================================ */
+@media (min-width: 1920px) {
+    .admin-grid {
+        grid-template-columns: 1.8fr 1fr;
+        gap: 2rem;
+    }
+    .queue-stats { gap: 1.5rem; }
+    .stat-box { padding: 1.75rem 1.25rem; }
+}
+
+/* ============================================================
+   ROSTER TABLE — let it fill its grid cell naturally
+   Override the global min-width so it doesn't force a scrollbar
+   inside the large 1.6fr column
+   ============================================================ */
+.doctor-roster .data-table {
+    min-width: unset;
+    width: 100%;
+}
+
+/* When roster is in its grid column, allow natural column widths */
+.doctor-roster .data-table th:nth-child(1),
+.doctor-roster .data-table td:nth-child(1) { min-width: 130px; }
+.doctor-roster .data-table th:nth-child(2),
+.doctor-roster .data-table td:nth-child(2) { min-width: 110px; }
+.doctor-roster .data-table th:nth-child(3),
+.doctor-roster .data-table td:nth-child(3) { min-width: 80px; }
+.doctor-roster .data-table th:nth-child(4),
+.doctor-roster .data-table td:nth-child(4) { min-width: 90px; }
+
+/* ============================================================
+   DARK MODE: Stat Box Overrides
+   ============================================================ */
+html[data-theme='dark'] .stat-box {
+    background: linear-gradient(135deg, rgba(45,212,191,0.08) 0%, #1e293b 100%);
+    border-color: rgba(45,212,191,0.15);
+}
+
+html[data-theme='dark'] .stat-box::before {
+    background: linear-gradient(90deg, #0d9488, #2dd4bf);
+}
+
+html[data-theme='dark'] .stat-box:hover {
+    box-shadow: 0 6px 20px rgba(45,212,191,0.15);
+}
+
+html[data-theme='dark'] .stat-box p {
+    color: var(--clr-text-muted);
+}

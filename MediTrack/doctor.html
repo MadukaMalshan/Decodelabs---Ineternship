@@ -4,13 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediTrack - Doctor Portal</title>
+    <!-- Pre-render Auth Guard (Blood-Brain Barrier) -->
+    <style>.hidden-skeleton { display: none !important; visibility: hidden !important; }</style>
+    <script>
+        try {
+            const auth = localStorage.getItem('meditrack_user');
+            if (!auth) {
+                window.location.replace('login.html');
+            } else {
+                const parsed = JSON.parse(auth);
+                if (!parsed || parsed.role !== 'doctor') {
+                    window.location.replace('login.html');
+                } else {
+                    const t = parsed.preferredTheme || localStorage.getItem('meditrack_theme') || 'light';
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+            }
+        } catch(e) {
+            window.location.replace('login.html');
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.remove('hidden-skeleton');
+        });
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body hidden-skeleton">
 
     <header class="mobile-header">
         <div class="logo">
@@ -222,6 +245,13 @@
                         <div class="form-group">
                             <label>Email Contact</label>
                             <input type="email" value="emily.chen@meditrack.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Portal Theme</label>
+                            <select class="settings-theme-select" onchange="setTheme(this.value)">
+                                <option value="light">Light Mode (Default)</option>
+                                <option value="dark">Dark Mode (Deep Charcoal)</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Update Profile</button>
                     </form>

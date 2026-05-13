@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediTrack - Welcome</title>
+    <!-- Pre-render Theme Guard (prevents white flash) -->
+    <script>
+        (function() {
+            try {
+                var u = localStorage.getItem('meditrack_user');
+                var t = 'light';
+                if (u) { var p = JSON.parse(u); if (p.preferredTheme) t = p.preferredTheme; }
+                if (t === 'light') { var plain = localStorage.getItem('meditrack_theme'); if (plain) t = plain; }
+                document.documentElement.setAttribute('data-theme', t);
+            } catch(e) {}
+        })();
+    </script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,8 +35,69 @@
         <nav class="top-nav">
             <a href="#features">Features</a>
             <a href="#portals" class="btn btn-primary">Login Portals</a>
+            <!-- Sleek Theme Toggle -->
+            <button id="landing-theme-btn" class="theme-toggle-btn" title="Toggle Dark Mode" aria-label="Toggle theme">
+                <span class="toggle-icon"><i id="landing-theme-icon" class="fa-solid fa-moon"></i></span>
+            </button>
         </nav>
     </header>
+
+    <script>
+        // Safe landing-page toggle — localStorage ONLY, no API calls (user may not be logged in)
+        (function() {
+            var btn = document.getElementById('landing-theme-btn');
+            var icon = document.getElementById('landing-theme-icon');
+
+            function getCurrentTheme() {
+                return document.documentElement.getAttribute('data-theme') || 'light';
+            }
+
+            function applyLandingTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                localStorage.setItem('meditrack_theme', t);
+
+                // Also update the meditrack_user blob if it exists (so dashboards pick it up)
+                try {
+                    var stored = localStorage.getItem('meditrack_user');
+                    if (stored) {
+                        var parsed = JSON.parse(stored);
+                        parsed.preferredTheme = t;
+                        localStorage.setItem('meditrack_user', JSON.stringify(parsed));
+                    }
+                } catch(e) {}
+
+                // Update icon with smooth swap animation
+                if (icon) {
+                    icon.style.opacity = '0';
+                    icon.style.transform = 'rotate(180deg) scale(0.5)';
+                    setTimeout(function() {
+                        icon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                        icon.style.transition = 'opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+                        icon.style.opacity = '1';
+                        icon.style.transform = 'rotate(0deg) scale(1)';
+                    }, 150);
+                }
+
+                if (btn) {
+                    btn.title = t === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+                }
+            }
+
+            // Set correct icon on load
+            var currentTheme = getCurrentTheme();
+            if (icon) {
+                icon.className = currentTheme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+
+            // Toggle on click — pure localStorage, never 500-errors
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    var next = getCurrentTheme() === 'dark' ? 'light' : 'dark';
+                    applyLandingTheme(next);
+                });
+            }
+        })();
+    </script>
 
     <main class="landing-main">
         <!-- Hero Section -->

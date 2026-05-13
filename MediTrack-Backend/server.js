@@ -9,6 +9,7 @@ const doctorRoutes = require('./src/routes/doctors.routes');
 const inventoryRoutes = require('./src/routes/inventory.routes');
 const prescriptionRoutes = require('./src/routes/prescriptions.routes');
 const patientRoutes = require('./src/routes/patients.routes');
+const authRoutes = require('./src/routes/auth.routes');
 const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler');
 
 const app = express();
@@ -61,6 +62,7 @@ app.get('/health', async (req, res) => {
 });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
+app.use('/api/v1/auth',          authRoutes);
 app.use('/api/v1/appointments',  appointmentRoutes);
 app.use('/api/v1/doctors',       doctorRoutes);
 app.use('/api/v1/inventory',     inventoryRoutes);

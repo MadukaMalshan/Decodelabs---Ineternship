@@ -1,27 +1,152 @@
 // app.js - MediTrack Frontend (API-Connected)
 const API = 'http://localhost:5000/api/v1';
 
+/* ============================================================
+   THEME MANAGEMENT — Dark / Light Mode
+   ============================================================ */
+
+/**
+ * Apply theme to document and persist to localStorage.
+ * If authenticated, also sync to the backend users table.
+ * Safe: will never throw or cause 500 to crash the page.
+ */
+async function setTheme(theme, syncToServer = true) {
+    // Normalise
+    const t = (theme === 'dark') ? 'dark' : 'light';
+
+    // Apply to DOM immediately
+    document.documentElement.setAttribute('data-theme', t);
+
+    // Update FA-icon toggle buttons on dashboard pages
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+        const iconEl = btn.querySelector('i');
+        if (iconEl) {
+            iconEl.style.opacity = '0';
+            iconEl.style.transform = 'rotate(180deg) scale(0.5)';
+            setTimeout(() => {
+                iconEl.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                iconEl.style.transition = 'opacity 0.3s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+                iconEl.style.opacity = '1';
+                iconEl.style.transform = 'rotate(0deg) scale(1)';
+            }, 150);
+        }
+        btn.title = t === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    });
+
+    // Sync settings dropdowns to match new theme
+    document.querySelectorAll('.settings-theme-select').forEach(sel => { sel.value = t; });
+
+    // Persist locally first — guaranteed to work even if server is unreachable
+    localStorage.setItem('meditrack_theme', t);
+
+    // Update meditrack_user blob if present
+    try {
+        const stored = localStorage.getItem('meditrack_user');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            parsed.preferredTheme = t;
+            localStorage.setItem('meditrack_user', JSON.stringify(parsed));
+        }
+    } catch(e) {}
+
+    // Sync to server — fully non-blocking, swallows ALL errors including 500
+    if (syncToServer) {
+        try {
+            const auth = await getAuth();
+            // Only call API for real authenticated sessions (not dummy/fallback IDs)
+            if (auth && auth.id && auth.id !== 'dummy' && auth.id !== 'admin1') {
+                const res = await fetch(`${API}/auth/theme`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Role': auth.role,
+                        'X-User-Id': auth.id
+                    },
+                    body: JSON.stringify({ theme: t })
+                });
+                // Intentionally do NOT throw on non-ok — localStorage already saved it
+            }
+        } catch(e) {
+            // Server unreachable / 500 / not authenticated — silently ignored
+            // User's preference is already safely stored in localStorage
+        }
+    }
+}
+
+/**
+ * Apply the stored theme (from meditrack_user or meditrack_theme localStorage key).
+ * Call on every page load to prevent white flash.
+ */
+function initTheme() {
+    let theme = 'light';
+    try {
+        const stored = localStorage.getItem('meditrack_user');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed.preferredTheme) theme = parsed.preferredTheme;
+        }
+    } catch(e) {}
+
+    // Fallback: plain localStorage key (for landing page with no session)
+    if (theme === 'light') {
+        const plain = localStorage.getItem('meditrack_theme');
+        if (plain) theme = plain;
+    }
+
+    document.documentElement.setAttribute('data-theme', theme);
+    // Sync icon after DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+            btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';
+            btn.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        });
+        // Sync settings dropdowns if present
+        const themeSelects = document.querySelectorAll('.settings-theme-select');
+        themeSelects.forEach(sel => { sel.value = theme; });
+    });
+}
+
+// Run immediately — before paint
+initTheme();
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+
 let authCache = null;
 async function getAuth() {
     if (authCache) return authCache;
-    const p = window.location.pathname;
-    let role = 'admin', id = 'admin1';
-    
-    if (p.includes('doctor.html')) role = 'doctor';
-    if (p.includes('patient.html')) role = 'patient';
-
-    if (role === 'doctor' || role === 'patient') {
+    const stored = localStorage.getItem('meditrack_user');
+    if (stored) {
         try {
-            // Use dummy auth just to get the list
-            const opts = { headers: { 'X-Role': 'admin', 'X-User-Id': 'admin1' } };
-            const res = await fetch(`${API}/${role}s`, opts);
-            const { data } = await res.json();
-            if (data && data.length > 0) id = data[0].id;
-        } catch(e) { console.warn('Could not fetch real ID, using fallback', e); }
+            const parsed = JSON.parse(stored);
+            authCache = { role: parsed.role, id: parsed.id, userId: parsed.userId, name: parsed.name };
+            
+            // Populate navigation header details dynamically
+            setTimeout(() => {
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = parsed.name || parsed.role);
+                document.querySelectorAll('.user-role').forEach(el => el.textContent = parsed.role.toUpperCase());
+            }, 50);
+
+            return authCache;
+        } catch(e) {}
     }
     
-    authCache = { role, id };
-    return authCache;
+    // Redirect unauthenticated guests gracefully
+    const p = window.location.pathname;
+    if (p.includes('admin.html') || p.includes('doctor.html') || p.includes('patient.html')) {
+        window.location.href = 'login.html';
+        return { role: 'patient', id: 'dummy' };
+    }
+    
+    return { role: 'admin', id: 'admin1' }; // Fallback for public pages
+}
+
+function logout() {
+    localStorage.removeItem('meditrack_user');
+    localStorage.removeItem('meditrack_theme');
+    authCache = null;
+    window.location.href = 'login.html';
 }
 
 async function api(endpoint, method = 'GET', body = null) {
@@ -50,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (p.includes('patient.html')) renderPatientDashboard();
     else initNetworkAnimation();
 });
+
 
 function initSidebar() {
     const btn = document.getElementById('mobile-menu-btn'), sb = document.getElementById('sidebar'), ov = document.getElementById('sidebar-overlay');
@@ -109,7 +235,23 @@ async function renderAdminDashboard() {
     try {
         // Queue (still local - no backend endpoint)
         const qm = document.getElementById('queue-monitor');
-        if (qm) qm.innerHTML = `<div class="stat-box"><p>Total Waiting</p><h4>14</h4></div><div class="stat-box"><p>Avg Wait Time</p><h4>25 mins</h4></div><div class="stat-box"><p>Active Doctors</p><h4>8</h4></div><div class="stat-box"><p>Emergency</p><h4 style="color:var(--clr-danger)">1</h4></div>`;
+        if (qm) qm.innerHTML = `
+            <div class="stat-box">
+                <p><i class="fa-solid fa-users" style="margin-right:0.3rem;color:var(--clr-btn-primary)"></i>Total Waiting</p>
+                <h4>14</h4>
+            </div>
+            <div class="stat-box">
+                <p><i class="fa-regular fa-clock" style="margin-right:0.3rem;color:var(--clr-btn-primary)"></i>Avg Wait</p>
+                <h4 style="font-size:clamp(1.4rem,2.5vw,2rem)">25 min</h4>
+            </div>
+            <div class="stat-box">
+                <p><i class="fa-solid fa-user-doctor" style="margin-right:0.3rem;color:var(--clr-btn-primary)"></i>Active Doctors</p>
+                <h4>8</h4>
+            </div>
+            <div class="stat-box">
+                <p><i class="fa-solid fa-triangle-exclamation" style="margin-right:0.3rem;color:var(--clr-danger)"></i>Emergency</p>
+                <h4 style="color:var(--clr-danger)">1</h4>
+            </div>`;
 
         const { data: doctors } = await api('/doctors');
         const { data: specs } = await api('/doctors/specialties');
@@ -117,27 +259,112 @@ async function renderAdminDashboard() {
 
         // Preview roster
         const rb = document.getElementById('roster-table-body');
-        if (rb) rb.innerHTML = doctors.slice(0,3).map(d => `<tr><td>${d.name}</td><td>${specMap[d.specialty]||'General'}</td><td>${d.shift}</td><td><span class="badge ${getBadgeClass(d.status)}">${d.status}</span></td></tr>`).join('');
+        if (rb) rb.innerHTML = doctors.slice(0,3).map(d => `<tr>
+            <td data-label="Doctor">${d.name}</td>
+            <td data-label="Specialty">${specMap[d.specialty]||'General'}</td>
+            <td data-label="Shift">${d.shift}</td>
+            <td data-label="Status"><span class="badge ${getBadgeClass(d.status)}">${d.status}</span></td>
+        </tr>`).join('');
 
         // Full staff
         const sq = document.getElementById('staff-search-input')?.value.toLowerCase() || '';
         const filtered = sq ? doctors.filter(d => d.name.toLowerCase().includes(sq) || (specMap[d.specialty]||'').toLowerCase().includes(sq)) : doctors;
         const fb = document.getElementById('full-staff-table-body');
         if (fb) fb.innerHTML = filtered.length === 0 ? `<tr><td colspan="6" class="text-center" style="padding:2rem">No results</td></tr>` :
-            filtered.map(s => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${s.name}</div></td><td>Doctor</td><td>${specMap[s.specialty]||'General'}</td><td><i class="fa-solid fa-envelope" style="color:var(--clr-text-muted);margin-right:5px"></i>${s.email||'N/A'}</td><td><span class="badge ${getBadgeClass(s.status)}">${s.status}</span></td><td><button class="btn" onclick="openEditStaffModal('${s.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i> Edit</button><button class="btn" onclick="deleteStaff('${s.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i> Delete</button></td></tr>`).join('');
+            filtered.map(s => `<tr>
+                <td data-label="Name"><div style="font-weight:600;color:var(--clr-text-main)">${s.name}</div></td>
+                <td data-label="Role">Doctor</td>
+                <td data-label="Department">${specMap[s.specialty]||'General'}</td>
+                <td data-label="Contact"><i class="fa-solid fa-envelope" style="color:var(--clr-text-muted);margin-right:5px"></i>${s.email||'N/A'}</td>
+                <td data-label="Status"><span class="badge ${getBadgeClass(s.status)}">${s.status}</span></td>
+                <td data-label="Actions">
+                    <button class="btn" onclick="openEditStaffModal('${s.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i> Edit</button>
+                    <button class="btn" onclick="deleteStaff('${s.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i> Delete</button>
+                </td>
+            </tr>`).join('');
 
         // Full inventory
         const { data: inv } = await api('/inventory');
         const iq = document.getElementById('inventory-search-input')?.value.toLowerCase() || '';
         const fInv = iq ? inv.filter(i => i.item.toLowerCase().includes(iq) || i.category.toLowerCase().includes(iq)) : inv;
-        const ib = document.getElementById('full-inventory-table-body');
-        if (ib) ib.innerHTML = fInv.length === 0 ? `<tr><td colspan="7" class="text-center" style="padding:2rem">No results</td></tr>` :
-            fInv.map(i => `<tr><td style="font-family:monospace;color:var(--clr-text-muted);word-break:break-all">${generateTruncatedIdCell(i.id)}</td><td><div style="font-weight:600;color:var(--clr-text-main)">${i.item}</div></td><td>${i.category}</td><td>${i.stock} ${i.unit||'units'}</td><td>${i.lastUpdated ? new Date(i.lastUpdated).toLocaleDateString() : 'N/A'}</td><td><span class="badge ${getBadgeClass(i.status)}">${i.status}</span></td><td><button class="btn" onclick="openEditInventoryModal('${i.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i> Edit</button><button class="btn" onclick="deleteInventory('${i.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i> Delete</button></td></tr>`).join('');
+        const ib2 = document.getElementById('full-inventory-table-body');
+        if (ib2) ib2.innerHTML = fInv.length === 0 ? `<tr><td colspan="7" class="text-center" style="padding:2rem">No results</td></tr>` :
+            fInv.map(i => `<tr>
+                <td data-label="ID" style="font-family:monospace;color:var(--clr-text-muted)">${generateTruncatedIdCell(i.id)}</td>
+                <td data-label="Item"><div style="font-weight:600;color:var(--clr-text-main)">${i.item}</div></td>
+                <td data-label="Category">${i.category}</td>
+                <td data-label="Stock">${i.stock} ${i.unit||'units'}</td>
+                <td data-label="Updated">${i.lastUpdated ? new Date(i.lastUpdated).toLocaleDateString() : 'N/A'}</td>
+                <td data-label="Status"><span class="badge ${getBadgeClass(i.status)}">${i.status}</span></td>
+                <td data-label="Actions">
+                    <button class="btn" onclick="openEditInventoryModal('${i.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i> Edit</button>
+                    <button class="btn" onclick="deleteInventory('${i.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i> Delete</button>
+                </td>
+            </tr>`).join('');
 
         // Preview inventory
         const pib = document.getElementById('inventory-table-body');
-        if (pib) pib.innerHTML = inv.slice(0,3).map(i => `<tr><td>${i.item}</td><td>${i.category}</td><td>${i.stock}</td><td><span class="badge ${getBadgeClass(i.status)}">${i.status}</span></td></tr>`).join('');
+        if (pib) pib.innerHTML = inv.slice(0,3).map(i => `<tr>
+            <td data-label="Item">${i.item}</td>
+            <td data-label="Category">${i.category}</td>
+            <td data-label="Stock">${i.stock}</td>
+            <td data-label="Status"><span class="badge ${getBadgeClass(i.status)}">${i.status}</span></td>
+        </tr>`).join('');
+
+        // Load pending verifications automatically
+        loadPendingDoctors();
     } catch(e) { console.error('Admin render error:', e); }
+}
+
+async function loadPendingDoctors() {
+    const pb = document.getElementById('pending-doctors-body');
+    if (!pb) return;
+    try {
+        const res = await fetch('http://localhost:5000/api/v1/auth/admin/pending-doctors', {
+            headers: { 'X-Role': 'admin', 'X-User-Id': 'admin1' }
+        });
+        const { data: list } = await res.json();
+        
+        if (!list || list.length === 0) {
+            pb.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:2rem;color:var(--clr-text-muted)">✅ All doctor profiles verified. No pending applications.</td></tr>`;
+            return;
+        }
+
+        pb.innerHTML = list.map(d => `
+            <tr>
+                <td data-label="Name"><div style="font-weight:600;color:var(--clr-text-main)">${d.name}</div><div style="font-size:0.75rem;color:var(--clr-text-muted)">${d.email} • ${d.phone}</div></td>
+                <td data-label="Specialty">${d.specialty_name || d.specialty || 'General'}</td>
+                <td data-label="License"><span style="font-family:monospace;background:#f1f5f9;padding:0.2rem 0.4rem;border-radius:3px">${d.license_number || 'N/A'}</span></td>
+                <td data-label="Experience">${d.years_of_experience ? d.years_of_experience + ' yrs' : 'N/A'}</td>
+                <td data-label="Clinic">${d.current_clinic || 'N/A'}</td>
+                <td data-label="Registered">${new Date(d.created_at).toLocaleDateString()}</td>
+                <td data-label="Action">
+                    <button class="btn btn-accent" onclick="approvePendingDoctor('${d.id}')" style="padding:0.3rem 0.8rem;font-size:0.8rem;">
+                        <i class="fa-solid fa-check"></i> Accept
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch(e) {
+        pb.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Failed to load verifications</td></tr>`;
+    }
+}
+
+async function approvePendingDoctor(id) {
+    if (!confirm('Approve this practitioner account and grant live system access?')) return;
+    try {
+        const res = await fetch(`http://localhost:5000/api/v1/auth/admin/approve-doctor/${id}`, {
+            method: 'PUT',
+            headers: { 'X-Role': 'admin', 'X-User-Id': 'admin1' }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message);
+        alert(`✅ ${data.message}`);
+        loadPendingDoctors();
+        renderAdminDashboard();
+    } catch(e) {
+        alert(`⚠️ Could not approve: ${e.message}`);
+    }
 }
 
 // Admin CRUD
@@ -280,13 +507,30 @@ async function renderDoctorDashboard() {
             ];
             const sq = document.getElementById('inpatient-search-input')?.value.toLowerCase()||'';
             const f = sq ? mockInpatients.filter(p => p.name.toLowerCase().includes(sq)||p.diagnosis.toLowerCase().includes(sq)) : mockInpatients;
-            ipb.innerHTML = f.map(p => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${p.name}</div></td><td>${p.ward}</td><td>${p.date}</td><td>${p.diagnosis}</td><td><span class="badge ${p.condition==='Critical'?'badge-danger':'badge-success'}">${p.condition}</span></td><td><button class="btn" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem" onclick="alert('Viewing Vitals')">Vitals</button><button class="btn" onclick="openEditInpatientModal('${p.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i></button><button class="btn" onclick="dischargePatient('${p.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)">Discharge</button></td></tr>`).join('');
+            ipb.innerHTML = f.map(p => `<tr>
+                <td data-label="Patient"><div style="font-weight:600;color:var(--clr-text-main)">${p.name}</div></td>
+                <td data-label="Ward/Room">${p.ward}</td>
+                <td data-label="Admitted">${p.date}</td>
+                <td data-label="Diagnosis">${p.diagnosis}</td>
+                <td data-label="Condition"><span class="badge ${p.condition==='Critical'?'badge-danger':'badge-success'}">${p.condition}</span></td>
+                <td data-label="Actions">
+                    <button class="btn" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem" onclick="alert('Viewing Vitals')">Vitals</button>
+                    <button class="btn" onclick="openEditInpatientModal('${p.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary);margin-right:0.5rem"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn" onclick="dischargePatient('${p.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)">Discharge</button>
+                </td>
+            </tr>`).join('');
         }
 
         // Prescriptions from API
         const { data: rxs } = await api('/prescriptions');
         const rpb = document.getElementById('recent-prescriptions-body');
-        if (rpb) rpb.innerHTML = rxs.map(rx => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${rx.patientName}</div></td><td>${rx.issuedDate||rx.date}</td><td>${rx.medicationName||rx.medications||rx.meds}</td><td><span class="badge ${rx.status==='Dispensed'?'badge-success':'badge-warning'}">${rx.status}</span></td><td><button class="btn" onclick="cancelPrescription('${rx.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i></button></td></tr>`).join('');
+        if (rpb) rpb.innerHTML = rxs.map(rx => `<tr>
+            <td data-label="Patient"><div style="font-weight:600;color:var(--clr-text-main)">${rx.patientName}</div></td>
+            <td data-label="Date">${rx.issuedDate||rx.date}</td>
+            <td data-label="Medication">${rx.medicationName||rx.medications||rx.meds}</td>
+            <td data-label="Status"><span class="badge ${rx.status==='Dispensed'?'badge-success':'badge-warning'}">${rx.status}</span></td>
+            <td data-label="Actions"><button class="btn" onclick="cancelPrescription('${rx.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)"><i class="fa-solid fa-trash"></i></button></td>
+        </tr>`).join('');
     } catch(e) { console.error('Doctor render:', e); }
 }
 
@@ -373,7 +617,13 @@ async function renderPatientDashboard() {
         const bb = document.getElementById('patient-bookings-body');
         if (bb) {
             if (bookings.length === 0) bb.innerHTML = `<tr><td colspan="5" class="text-center" style="padding:2rem;color:var(--clr-text-muted)">No bookings yet.</td></tr>`;
-            else bb.innerHTML = bookings.map(b => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${b.doctorName}</div></td><td>${b.specialty}</td><td>${b.date}, ${b.time}</td><td><span class="badge ${b.status==='Scheduled'?'badge-warning':b.status==='Completed'?'badge-success':'badge-danger'}">${b.status}</span></td><td>${b.status==='Scheduled'?`<button class="btn btn-accent" onclick="alert('Contact clinic to reschedule')" style="padding:0.2rem 0.5rem;font-size:0.8rem;margin-right:0.5rem">Reschedule</button><button class="btn" onclick="cancelBooking('${b.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)">Cancel</button>`:`<span style="color:var(--clr-text-muted);font-size:0.9rem">No actions</span>`}</td></tr>`).join('');
+            else bb.innerHTML = bookings.map(b => `<tr>
+                <td data-label="Doctor"><div style="font-weight:600;color:var(--clr-text-main)">${b.doctorName}</div></td>
+                <td data-label="Specialty">${b.specialty}</td>
+                <td data-label="Date/Time">${b.date}, ${b.time}</td>
+                <td data-label="Status"><span class="badge ${b.status==='Scheduled'?'badge-warning':b.status==='Completed'?'badge-success':'badge-danger'}">${b.status}</span></td>
+                <td data-label="Actions">${b.status==='Scheduled'?`<button class="btn btn-accent" onclick="alert('Contact clinic to reschedule')" style="padding:0.2rem 0.5rem;font-size:0.8rem;margin-right:0.5rem">Reschedule</button><button class="btn" onclick="cancelBooking('${b.id}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(220,38,38,0.1);color:var(--clr-danger)">Cancel</button>`:`<span style="color:var(--clr-text-muted);font-size:0.9rem">No actions</span>`}</td>
+            </tr>`).join('');
         }
 
         // Medical records (local - no backend endpoint)
@@ -382,7 +632,12 @@ async function renderPatientDashboard() {
             { date:'2024-08-22', diagnosis:'Routine Checkup', treatment:'All vitals normal' }
         ];
         const rb = document.getElementById('patient-records-body');
-        if (rb) rb.innerHTML = records.map(r => `<tr><td><div style="font-weight:600;color:var(--clr-text-main)">${r.date}</div></td><td>${r.diagnosis}</td><td>${r.treatment}</td><td><button class="btn" onclick="alert('Downloading: ${r.diagnosis}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary)"><i class="fa-solid fa-file-pdf"></i> Download</button></td></tr>`).join('');
+        if (rb) rb.innerHTML = records.map(r => `<tr>
+            <td data-label="Date"><div style="font-weight:600;color:var(--clr-text-main)">${r.date}</div></td>
+            <td data-label="Diagnosis">${r.diagnosis}</td>
+            <td data-label="Treatment">${r.treatment}</td>
+            <td data-label="Documents"><button class="btn" onclick="alert('Downloading: ${r.diagnosis}')" style="padding:0.2rem 0.5rem;font-size:0.8rem;background:rgba(13,148,136,0.1);color:var(--clr-btn-primary)"><i class="fa-solid fa-file-pdf"></i> Download</button></td>
+        </tr>`).join('');
 
         // Booking form
         const bf = document.getElementById('booking-form');

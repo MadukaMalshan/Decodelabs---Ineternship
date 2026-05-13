@@ -11,7 +11,21 @@ DROP TABLE IF EXISTS inpatients CASCADE;
 DROP TABLE IF EXISTS patients CASCADE;
 DROP TABLE IF EXISTS doctors CASCADE;
 DROP TABLE IF EXISTS specialties CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS inventory CASCADE;
+
+-- ============================================================================
+-- USERS TABLE (Centralized Authentication)
+-- ============================================================================
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL CHECK (role IN ('Admin', 'Doctor', 'Patient')),
+    preferred_theme VARCHAR(20) DEFAULT 'light',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- ============================================================================
 -- SPECIALTIES TABLE
@@ -29,14 +43,17 @@ CREATE TABLE specialties (
 -- ============================================================================
 CREATE TABLE doctors (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     specialty_id VARCHAR(50) NOT NULL,
     shift VARCHAR(50) NOT NULL CHECK (shift IN ('Morning', 'Evening', 'Night')),
-    status VARCHAR(50) NOT NULL DEFAULT 'Available' CHECK (status IN ('Available', 'Busy', 'Offline')),
+    status VARCHAR(50) NOT NULL DEFAULT 'Available' CHECK (status IN ('Available', 'Busy', 'Offline', 'Pending')),
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20) NOT NULL UNIQUE,
     department VARCHAR(100),
     license_number VARCHAR(100) UNIQUE,
+    years_of_experience INTEGER,
+    current_clinic VARCHAR(255),
     hire_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,6 +65,7 @@ CREATE TABLE doctors (
 -- ============================================================================
 CREATE TABLE patients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20) NOT NULL UNIQUE,
@@ -174,6 +192,24 @@ CREATE INDEX idx_inventory_status ON inventory(status);
 -- SEED DATA
 -- ============================================================================
 
+-- Insert Main Admin Account
+INSERT INTO users (email, password, role) VALUES
+('admin@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Admin');
+-- Note: password is '123456' hashed with SHA256
+
+-- Insert Users for Doctors
+INSERT INTO users (email, password, role) VALUES
+('sarah.connor@meditrack.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Doctor'),
+('john.smith@meditrack.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Doctor'),
+('emily.chen@meditrack.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Doctor'),
+('michael.lee@meditrack.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Doctor');
+
+-- Insert Users for Patients
+INSERT INTO users (email, password, role) VALUES
+('alice@email.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Patient'),
+('bob@email.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Patient'),
+('charlie@email.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'Patient');
+
 -- Insert Specialties
 INSERT INTO specialties (id, name, icon) VALUES
 ('cardio', 'Cardiology', 'fa-heart-pulse'),
@@ -184,17 +220,17 @@ INSERT INTO specialties (id, name, icon) VALUES
 ('optha', 'Ophthalmology', 'fa-eye');
 
 -- Insert Doctors
-INSERT INTO doctors (name, specialty_id, shift, status, email, phone, department, hire_date) VALUES
-('Dr. Sarah Connor', 'cardio', 'Morning', 'Available', 'sarah.connor@meditrack.com', '+94 71 234 5678', 'Cardiology', '2023-01-15'),
-('Dr. John Smith', 'neuro', 'Evening', 'Busy', 'john.smith@meditrack.com', '+94 71 234 5679', 'Neurology', '2022-06-20'),
-('Dr. Emily Chen', 'pedia', 'Morning', 'Available', 'emily.chen@meditrack.com', '+94 71 234 5680', 'Pediatrics', '2023-03-10'),
-('Dr. Michael Lee', 'ortho', 'Night', 'Offline', 'michael.lee@meditrack.com', '+94 71 234 5681', 'Orthopedics', '2021-11-05');
+INSERT INTO doctors (user_id, name, specialty_id, shift, status, email, phone, department, license_number, hire_date) VALUES
+((SELECT id FROM users WHERE email = 'sarah.connor@meditrack.com'), 'Dr. Sarah Connor', 'cardio', 'Morning', 'Available', 'sarah.connor@meditrack.com', '+94 71 234 5678', 'Cardiology', 'LIC-2023-001', '2023-01-15'),
+((SELECT id FROM users WHERE email = 'john.smith@meditrack.com'), 'Dr. John Smith', 'neuro', 'Evening', 'Busy', 'john.smith@meditrack.com', '+94 71 234 5679', 'Neurology', 'LIC-2022-002', '2022-06-20'),
+((SELECT id FROM users WHERE email = 'emily.chen@meditrack.com'), 'Dr. Emily Chen', 'pedia', 'Morning', 'Available', 'emily.chen@meditrack.com', '+94 71 234 5680', 'Pediatrics', 'LIC-2023-003', '2023-03-10'),
+((SELECT id FROM users WHERE email = 'michael.lee@meditrack.com'), 'Dr. Michael Lee', 'ortho', 'Night', 'Offline', 'michael.lee@meditrack.com', '+94 71 234 5681', 'Orthopedics', 'LIC-2021-004', '2021-11-05');
 
 -- Insert Patients
-INSERT INTO patients (name, email, phone, date_of_birth, blood_type, gender, address, emergency_contact, emergency_phone, allergies) VALUES
-('Alice Johnson', 'alice@email.com', '+94 77 111 2222', '1990-03-15', 'O+', 'Female', '123 Main St', 'John Johnson', '+94 77 111 2223', 'Penicillin'),
-('Bob Williams', 'bob@email.com', '+94 77 333 4444', '1985-07-22', 'A+', 'Male', '456 Oak Ave', 'Sarah Williams', '+94 77 333 4445', NULL),
-('Charlie Brown', 'charlie@email.com', '+94 77 555 6666', '1998-01-10', 'B+', 'Male', '789 Pine Rd', 'Mary Brown', '+94 77 555 6667', 'Aspirin');
+INSERT INTO patients (user_id, name, email, phone, date_of_birth, blood_type, gender, address, emergency_contact, emergency_phone, allergies) VALUES
+((SELECT id FROM users WHERE email = 'alice@email.com'), 'Alice Johnson', 'alice@email.com', '+94 77 111 2222', '1990-03-15', 'O+', 'Female', '123 Main St', 'John Johnson', '+94 77 111 2223', 'Penicillin'),
+((SELECT id FROM users WHERE email = 'bob@email.com'), 'Bob Williams', 'bob@email.com', '+94 77 333 4444', '1985-07-22', 'A+', 'Male', '456 Oak Ave', 'Sarah Williams', '+94 77 333 4445', NULL),
+((SELECT id FROM users WHERE email = 'charlie@email.com'), 'Charlie Brown', 'charlie@email.com', '+94 77 555 6666', '1998-01-10', 'B+', 'Male', '789 Pine Rd', 'Mary Brown', '+94 77 555 6667', 'Aspirin');
 
 -- Insert Appointments
 INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, type, status, reason_for_visit) VALUES

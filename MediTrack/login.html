@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack - Professional Secure Access</title>
+    <!-- Google Fonts: Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS Base -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --font-primary: 'Inter', sans-serif;
+            --font-heading: 'Poppins', sans-serif;
+            --clr-brand-primary: #0d9488;
+            --clr-brand-hover: #0f766e;
+            --clr-input-bg: #f1f5f9;
+            --clr-text-main: #0f172a;
+            --clr-text-muted: #64748b;
+            --border-radius-card: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--clr-text-main);
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Split-Screen Main Floating Card Container */
+        .split-card {
+            background: white;
+            border-radius: var(--border-radius-card);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1050px;
+            min-height: 620px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        @media (max-width: 850px) {
+            .split-card {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            .split-visual {
+                display: none !important;
+            }
+            .split-form-wrapper {
+                padding: 3rem 2.5rem !important;
+            }
+        }
+
+        /* Left Section: Visual Illustration & Gradient Box */
+        .split-visual {
+            background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Subtle glowing vector shapes mimicking an illustrative backdrop */
+        .visual-backdrop-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .shape-1 { width: 400px; height: 400px; top: -100px; left: -100px; }
+        .shape-2 { width: 300px; height: 300px; bottom: 50px; right: -50px; }
+
+        .visual-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.4rem;
+            z-index: 2;
+        }
+
+        .visual-center-art {
+            text-align: center;
+            z-index: 2;
+            margin: auto 0;
+        }
+
+        .art-icon-container {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            animation: floatArt 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatArt {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-12px); }
+        }
+
+        .visual-headline {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 2.1rem;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .visual-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* Right Section: Pure Minimalist Form Layout */
+        .split-form-wrapper {
+            padding: 3.5rem 4.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 2.25rem;
+        }
+
+        .form-title {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 1.85rem;
+            color: var(--clr-text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .form-subtitle {
+            color: var(--clr-text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .clean-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .field-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--clr-text-main);
+        }
+
+        .input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 1rem;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+        }
+
+        .grey-input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            background: var(--clr-input-bg);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            font-family: var(--font-primary);
+            font-size: 0.95rem;
+            color: var(--clr-text-main);
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .grey-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .grey-input:focus {
+            background: white;
+            border-color: var(--clr-brand-primary);
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .grey-input:focus ~ .field-icon {
+            color: var(--clr-brand-primary);
+        }
+
+        /* Password Visibility Toggle */
+        .pwd-toggle-btn {
+            position: absolute;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem;
+            transition: color 0.2s ease;
+        }
+        .pwd-toggle-btn:hover {
+            color: var(--clr-text-main);
+        }
+
+        /* Form Actions */
+        .btn-submit-primary {
+            background: var(--clr-brand-primary);
+            color: white;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.95rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 8px 16px -4px rgba(13, 148, 136, 0.25);
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit-primary:hover {
+            background: var(--clr-brand-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px -4px rgba(13, 148, 136, 0.35);
+        }
+
+        .register-footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: var(--clr-text-muted);
+            font-weight: 500;
+        }
+
+        .register-footer a {
+            color: var(--clr-brand-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .register-footer a:hover {
+            color: var(--clr-brand-hover);
+            text-decoration: underline;
+        }
+
+        .alert-box {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            padding: 0.85rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.25rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="split-card animate-fade-in">
+        
+        <!-- Left Section: Visual Content & Medical Illustration -->
+        <div class="split-visual">
+            <div class="visual-backdrop-shape shape-1"></div>
+            <div class="visual-backdrop-shape shape-2"></div>
+            
+            <div class="visual-logo">
+                <i class="fa-solid fa-notes-medical" style="font-size: 1.6rem;"></i>
+                <span>MediTrack</span>
+            </div>
+
+            <div class="visual-center-art">
+                <div class="art-icon-container">
+                    <i class="fa-solid fa-laptop-medical"></i>
+                </div>
+                <h2 class="visual-headline">Simplify healthcare management with our dashboard.</h2>
+                <p class="visual-subtitle">Experience a centralized, secure flow connecting administrators, medical professionals, and patients effortlessly.</p>
+            </div>
+
+            <div style="font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); z-index: 2;">
+                © 2026 MediTrack Systems. Professional Core.
+            </div>
+        </div>
+
+        <!-- Right Section: Pure Minimalist Login Form -->
+        <div class="split-form-wrapper">
+            
+            <div class="form-header">
+                <h1 class="form-title">Welcome Back</h1>
+                <p class="form-subtitle">Enter your secure credentials to authorize entry</p>
+            </div>
+
+            <div id="login-error" class="alert-box"></div>
+
+            <form id="login-form" class="clean-form">
+                
+                <div class="field-group">
+                    <label for="login-email" class="field-label">Email Address</label>
+                    <div class="input-box">
+                        <input type="email" id="login-email" class="grey-input" placeholder="name@meditrack.com" required>
+                        <i class="fa-solid fa-envelope field-icon"></i>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="login-password" class="field-label">Password</label>
+                    <div class="input-box">
+                        <input type="password" id="login-password" class="grey-input" placeholder="••••••••" required>
+                        <i class="fa-solid fa-lock field-icon"></i>
+                        <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility()" title="Toggle visibility">
+                            <i id="pwd-eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn" class="btn-submit-primary">
+                    <i class="fa-solid fa-right-to-bracket"></i> Authorize Entry
+                </button>
+
+            </form>
+
+            <div class="register-footer">
+                Don't have an account? <a href="register.html">Register Now</a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById('login-password');
+            const eyeIcon = document.getElementById('pwd-eye-icon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                eyeIcon.className = 'fa-solid fa-eye-slash';
+            } else {
+                pwdInput.type = 'password';
+                eyeIcon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        const lf = document.getElementById('login-form');
+        const errDiv = document.getElementById('login-error');
+        const btn = document.getElementById('login-btn');
+
+        if (lf) {
+            lf.onsubmit = async (e) => {
+                e.preventDefault();
+                errDiv.style.display = 'none';
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/v1/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Authentication Failed.');
+                    }
+
+                    const profile = data.data.user;
+                    localStorage.setItem('meditrack_user', JSON.stringify({
+                        role: profile.role.toLowerCase(),
+                        id: profile.id,
+                        userId: profile.userId,
+                        name: profile.name
+                    }));
+
+                    if (profile.role === 'Admin') {
+                        window.location.href = 'admin.html';
+                    } else if (profile.role === 'Doctor') {
+                        window.location.href = 'doctor.html';
+                    } else {
+                        window.location.href = 'patient.html';
+                    }
+
+                } catch (err) {
+                    errDiv.textContent = err.message;
+                    errDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Authorize Entry';
+                }
+            };
+        }
+    </script>
+</body>
+</html>
